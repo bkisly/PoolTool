@@ -1,4 +1,5 @@
 from enum import Enum
+from exceptions.value_types_exceptions import NegativePriceError
 
 
 class Services(Enum):
@@ -18,29 +19,81 @@ class WeekDay(Enum):
 
 class Price:
     def __init__(self, zl: int, gr: int) -> None:
+        self._data_validation(zl, gr)
         self.zl = zl
         self.gr = gr
 
     def __add__(self, other):
-        pass
+        self_total_gr = self._get_total_gr()
+        other_total_gr = self._get_total_gr(other)
+        result_total_gr = self_total_gr + other_total_gr
+        return Price(result_total_gr // 100, result_total_gr % 100)
 
     def __sub__(self, other):
-        pass
+        self_total_gr = self._get_total_gr()
+        other_total_gr = self._get_total_gr(other)
+        result_total_gr = self_total_gr - other_total_gr
+
+        if result_total_gr < 0:
+            message = "Result of price subtraction cannot be negative."
+            raise NegativePriceError(message)
+
+        return Price(result_total_gr // 100, result_total_gr % 100)
 
     def __eq__(self, other) -> bool:
-        pass
+        if self.gr == other.gr and self.zl == other.zl:
+            return True
+        else:
+            return False
 
     def __lt__(self, other) -> bool:
-        pass
+        self_total_gr = self._get_total_gr()
+        other_total_gr = self._get_total_gr(other)
+
+        if self_total_gr < other_total_gr:
+            return True
+        else:
+            return False
 
     def __gt__(self, other) -> bool:
-        pass
+        self_total_gr = self._get_total_gr()
+        other_total_gr = self._get_total_gr(other)
+
+        if self_total_gr > other_total_gr:
+            return True
+        else:
+            return False
 
     def __le__(self, other) -> bool:
-        pass
+        self_total_gr = self._get_total_gr()
+        other_total_gr = self._get_total_gr(other)
+
+        if self_total_gr <= other_total_gr:
+            return True
+        else:
+            return False
 
     def __ge__(self, other) -> bool:
-        pass
+        self_total_gr = self._get_total_gr()
+        other_total_gr = self._get_total_gr(other)
+
+        if self_total_gr >= other_total_gr:
+            return True
+        else:
+            return False
+
+    def _get_total_gr(self, price=None):
+        if price is None:
+            price = self
+
+        return price.zl * 100 + price.gr
+
+    def _data_validation(self, zl, gr):
+        if not (str(zl).isdigit() and str(gr).isdigit()):
+            if zl < 0 or gr < 0:
+                raise NegativePriceError("Price attributes cannot be negative")
+
+            raise TypeError("Invalid type of a Price attribute")
 
 
 class HoursRange:

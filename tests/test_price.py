@@ -45,7 +45,7 @@ def test_price_eq_wrong_type():
     price_1 = Price(3, 14)
     price_2 = 3.45
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         price_1 == price_2
 
 
@@ -71,7 +71,9 @@ def test_price_add_zero():
 
 def test_price_add_wrong_type():
     price = Price(2, 45)
-    return price + 2
+
+    with pytest.raises(AttributeError):
+        price + 2
 
 
 # Tests for Price.__sub__()
@@ -79,7 +81,7 @@ def test_price_add_wrong_type():
 def test_price_sub_typical():
     price_1 = Price(2, 47)
     price_2 = Price(1, 12)
-    assert price_1 + price_2 == Price(5, 59)
+    assert price_1 - price_2 == Price(1, 35)
 
 
 def test_price_sub_zero():
@@ -106,7 +108,7 @@ def test_price_sub_wrong_type():
     price_1 = Price(2, 45)
     price_2 = 23
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         price_1 - price_2
 
 
@@ -128,7 +130,7 @@ def test_price_lt_wrong_type():
     price_1 = Price(2, 45)
     price_2 = 23
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         price_1 < price_2
 
 
@@ -150,7 +152,7 @@ def test_price_gt_wrong_type():
     price_1 = Price(2, 45)
     price_2 = 3
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         price_1 > price_2
 
 
@@ -172,7 +174,7 @@ def test_price_le_wrong_type():
     price_1 = Price(2, 45)
     price_2 = 1
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         price_1 <= price_2
 
 
@@ -194,5 +196,5 @@ def test_price_ge_wrong_type():
     price_1 = Price(2, 45)
     price_2 = 3
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AttributeError):
         price_1 >= price_2
