@@ -11,3 +11,9 @@ class PriceListPosition:
 class PriceListModel:
     def __init__(self) -> None:
         self.pricing = []
+
+    def read_pricing(self):
+        pass
+
+    def write_pricing(self):
+        pass

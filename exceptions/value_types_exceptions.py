@@ -1,0 +1,2 @@
+class NegativePriceError(Exception):
+    pass
