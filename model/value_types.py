@@ -122,6 +122,9 @@ class HoursRange:
         else:
             return False
 
+    def __add__(self, other):
+        pass
+
     def _data_validation(self, begin, end):
         if not (isinstance(begin, time) and isinstance(end, time)):
             raise TypeError("Begin and end hours must be time instances.")
