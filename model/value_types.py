@@ -114,6 +114,16 @@ class HoursRange:
 
         return False
 
+    def check_intersection(self, hours_range) -> bool:
+        if hours_range.begin < self.end and hours_range.end > self.begin:
+            return True
+        elif self.begin < hours_range.end and self.end > hours_range.begin:
+            return True
+        elif hours_range.begin == self.begin and hours_range.end == self.end:
+            return True
+        else:
+            return False
+
     def _data_validation(self, begin, end):
         if not (isinstance(begin, time) and isinstance(end, time)):
             raise TypeError("Begin and end hours must be time instances.")
