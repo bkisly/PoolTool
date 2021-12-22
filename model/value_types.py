@@ -117,8 +117,6 @@ class HoursRange:
     def check_intersection(self, hours_range) -> bool:
         if hours_range.begin < self.end and hours_range.end > self.begin:
             return True
-        elif self.begin < hours_range.end and self.end > hours_range.begin:
-            return True
         elif hours_range.begin == self.begin and hours_range.end == self.end:
             return True
         else:
