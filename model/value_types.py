@@ -1,5 +1,7 @@
 from enum import Enum
+from exceptions.value_types_exceptions import HoursRangeError
 from exceptions.value_types_exceptions import NegativePriceError
+from datetime import time
 
 
 class Services(Enum):
@@ -97,9 +99,27 @@ class Price:
 
 
 class HoursRange:
-    def __init__(self, begin, end) -> None:
+    def __init__(self, begin: time, end: time) -> None:
+        self._data_validation(begin, end)
+
         self.begin = begin
         self.end = end
 
-    def is_in_range(self, hour) -> bool:
-        pass
+    def is_in_range(self, hour: time) -> bool:
+        if not isinstance(hour, time):
+            raise TypeError("Hour to compare must be time instance.")
+
+        if self.begin <= hour <= self.end:
+            return True
+
+        return False
+
+    def _data_validation(self, begin, end):
+        if not (isinstance(begin, time) and isinstance(end, time)):
+            raise TypeError("Begin and end hours must be time instances.")
+
+        if end <= begin:
+            raise HoursRangeError("End hour must be greater than begin.")
+
+        if begin.minute % 30 != 0 or end.minute % 30 != 0:
+            raise HoursRangeError("Hours must have minutes equal 0 or 30.")
