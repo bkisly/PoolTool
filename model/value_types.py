@@ -114,6 +114,24 @@ class HoursRange:
 
         return False
 
+    def check_intersection(self, hours_range) -> bool:
+        if hours_range.begin < self.end and hours_range.end > self.begin:
+            return True
+        elif hours_range.begin == self.begin and hours_range.end == self.end:
+            return True
+        else:
+            return False
+
+    def __add__(self, other):
+        if not (self.begin == other.end or self.end == other.begin):
+            raise HoursRangeError(
+                "Summed HoursRange objects cannot intersect or be disconnected"
+            )
+
+        result_begin = min(self.begin, other.begin)
+        result_end = max(self.end, other.end)
+        return HoursRange(result_begin, result_end)
+
     def _data_validation(self, begin, end):
         if not (isinstance(begin, time) and isinstance(end, time)):
             raise TypeError("Begin and end hours must be time instances.")
