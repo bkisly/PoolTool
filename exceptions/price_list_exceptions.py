@@ -1,0 +1,2 @@
+class PricingHoursError(Exception):
+    pass
