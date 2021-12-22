@@ -21,8 +21,8 @@ class PriceListPosition:
 
 
 class PriceListModel:
-    def __init__(self, pool_model) -> None:
-        self._price_list_validation(pool_model)
+    def __init__(self, working_hours) -> None:
+        self._price_list_validation(working_hours)
         self._pricing = []
 
     def get_pricing(self, service: Services = None) -> list:
@@ -37,5 +37,7 @@ class PriceListModel:
 
         return filtered_positions
 
-    def _price_list_validation(self, pool_model):
+    def _price_list_validation(self, working_hours):
+        # 1. Check if pricing hours are the same like working hours
+        # 2. Check if pricing hours don't intersect
         pass
