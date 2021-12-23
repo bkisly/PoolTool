@@ -32,13 +32,8 @@ class PriceListPosition:
 
 class PriceListModel:
     def __init__(self, working_hours: dict, pricing_json: dict) -> None:
-        self._pricing = self.read_pricing(pricing_json)
+        self._pricing = self._read_pricing(pricing_json)
         self._price_list_validation(working_hours)
-
-    def read_pricing(self, pricing_json: dict) -> list:
-        # @TODO: Implement method that creates the list of PriceListPosition
-        # objects based on a JSON dictionary
-        pass
 
     def get_pricing(self, service: Services = None) -> list:
         if service is None:
@@ -51,6 +46,14 @@ class PriceListModel:
                 filtered_positions.append(position)
 
         return filtered_positions
+
+    def _read_pricing(self, pricing_json: dict) -> list:
+        pricing = []
+
+        for position in pricing_json:
+            pricing.append(PriceListPosition.from_json(position))
+
+        return pricing
 
     def _price_list_validation(self, working_hours: dict):
         # Working hours is a dict WeekDay -> HoursRange
