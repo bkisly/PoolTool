@@ -132,3 +132,21 @@ def test_hours_range_add_wrong_type():
 
     with pytest.raises(AttributeError):
         first_range + 3
+
+
+# Tests for HoursRange.__eq__()
+
+def test_hours_range_eq_typical():
+    first_range = HoursRange(time(9, 0), time(12, 30))
+    second_range = HoursRange(time(9, 0), time(12, 30))
+    third_range = HoursRange(time(12, 30), time(13, 0))
+
+    assert first_range == second_range
+    assert first_range != third_range
+
+
+def test_hours_range_eq_wrong_type():
+    first_range = HoursRange(time(9, 0), time(12, 30))
+
+    with pytest.raises(AttributeError):
+        first_range == 2
