@@ -12,6 +12,15 @@ class PriceListPosition:
         self.hours_range = hours_range
         self.price = price
 
+    @staticmethod
+    def from_json(json_dict: dict):
+        service = json_dict["service"]
+        day = json_dict["day"]
+        hours_range = HoursRange.from_json(json_dict["hours_range"])
+        price = Price.from_json(json_dict["price"])
+
+        return PriceListPosition(service, day, hours_range, price)
+
     def _data_validation(self, hours_range, price):
         if not isinstance(hours_range, HoursRange):
             raise TypeError("Range of hours must be HoursRange instance")
