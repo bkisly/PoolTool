@@ -132,6 +132,12 @@ class HoursRange:
         result_end = max(self.end, other.end)
         return HoursRange(result_begin, result_end)
 
+    def __eq__(self, other) -> bool:
+        if self.begin == other.begin and self.end == other.end:
+            return True
+
+        return False
+
     def _data_validation(self, begin, end):
         if not (isinstance(begin, time) and isinstance(end, time)):
             raise TypeError("Begin and end hours must be time instances.")

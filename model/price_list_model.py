@@ -1,3 +1,4 @@
+from exceptions.price_list_exceptions import PricingHoursError
 from model.value_types import Price, HoursRange, Services, WeekDay
 
 
@@ -21,9 +22,14 @@ class PriceListPosition:
 
 
 class PriceListModel:
-    def __init__(self, working_hours) -> None:
+    def __init__(self, working_hours: dict, pricing_json: dict) -> None:
+        self._pricing = self.read_pricing(pricing_json)
         self._price_list_validation(working_hours)
-        self._pricing = []
+
+    def read_pricing(self, pricing_json: dict) -> list:
+        # @TODO: Implement method that creates the list of PriceListPosition
+        # objects based on a JSON dictionary
+        pass
 
     def get_pricing(self, service: Services = None) -> list:
         if service is None:
@@ -37,7 +43,39 @@ class PriceListModel:
 
         return filtered_positions
 
-    def _price_list_validation(self, working_hours):
-        # 1. Check if pricing hours are the same like working hours
-        # 2. Check if pricing hours don't intersect
-        pass
+    def _price_list_validation(self, working_hours: dict):
+        # Working hours is a dict WeekDay -> HoursRange
+
+        # 1. Get the lists of PriceListPosition objects
+        # separately for individuals and schools
+
+        ind_pricing = self.get_pricing(Services.INDIVIDUAL)
+        school_pricing = self.get_pricing(Services.SWIMMING_SCHOOL)
+
+        # 2. Sort both lists by the begin hour of the PriceListPosition object
+
+        sorted_ind_pricing = sorted(
+            ind_pricing, key=lambda price_pos: price_pos.hours_range.begin)
+        sorted_school_pricing = sorted(
+            school_pricing, key=lambda price_pos: price_pos.hours_range.begin)
+
+        # 3. Initialize dictionaries, that to every day assign connected
+        # hour ranges of the pricing (will throw an exception if hours are
+        # disconnected or intersect)
+
+        ind_hours = {}
+        school_hours = {}
+
+        for day in working_hours:
+            ind_hours[day] = sum(
+                position.hours_range for position in sorted_ind_pricing)
+            school_hours[day] = sum(
+                position.hours_range for position in sorted_school_pricing
+            )
+
+        # 4. Check if those hours match the working hours
+
+        for day in ind_hours:
+            if ind_hours[day] != working_hours[day]:
+                raise PricingHoursError(
+                    "Pricing hours don't match pool working hours")
