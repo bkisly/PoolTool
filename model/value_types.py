@@ -172,7 +172,7 @@ class HoursRange:
             },
             "end": {
                 "hour": object.end.hour,
-                "minute": object.end.hour
+                "minute": object.end.minute
             }
         }
 

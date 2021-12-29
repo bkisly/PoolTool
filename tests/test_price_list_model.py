@@ -513,8 +513,144 @@ def test_price_list_model_init_wrong_json_hours():
 # Tests for PriceListModel.get_pricing()
 
 def test_price_list_model_get_typical():
-    pass
+    price_list = [
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.MONDAY,
+            HoursRange(time(8, 0), time(14, 30)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.MONDAY,
+            HoursRange(time(14, 30), time(18, 0)), Price(3, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.MONDAY,
+            HoursRange(time(8, 0), time(18, 0)), Price(5, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.TUESDAY,
+            HoursRange(time(9, 0), time(18, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.TUESDAY,
+            HoursRange(time(9, 0), time(18, 0)), Price(1, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.WEDNESDAY,
+            HoursRange(time(8, 0), time(18, 0)), Price(1, 15)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.WEDNESDAY,
+            HoursRange(time(8, 0), time(18, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.FRIDAY,
+            HoursRange(time(10, 0), time(12, 30)), Price(0, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.FRIDAY,
+            HoursRange(time(12, 30), time(17, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.FRIDAY,
+            HoursRange(time(10, 0), time(14, 30)), Price(5, 90)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.FRIDAY,
+            HoursRange(time(14, 30), time(17, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.SATURDAY,
+            HoursRange(time(11, 0), time(15, 0)), Price(6, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.SATURDAY,
+            HoursRange(time(11, 0), time(15, 0)), Price(7, 30)),
+    ]
+
+    price_list_model = PriceListModel(
+        working_hours, PriceListModel.to_json(price_list))
+
+    result_price_list = price_list_model.get_pricing()
+
+    assert len(result_price_list) == len(price_list)
+
+    for test_pos, res_pos in zip(price_list, result_price_list):
+        assert test_pos.service == res_pos.service
+        assert test_pos.day == res_pos.day
+        assert test_pos.hours_range == res_pos.hours_range
+        assert test_pos.price == res_pos.price
+
+    ind_price_list = price_list_model.get_pricing(Services.INDIVIDUAL)
+
+    for position in ind_price_list:
+        assert position.service == Services.INDIVIDUAL
+
+    schools_price_list = price_list_model.get_pricing(Services.SWIMMING_SCHOOL)
+
+    for position in schools_price_list:
+        assert position.service == Services.SWIMMING_SCHOOL
 
 
 def test_price_list_model_get_wrong_service():
-    pass
+    price_list = [
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.MONDAY,
+            HoursRange(time(8, 0), time(14, 30)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.MONDAY,
+            HoursRange(time(14, 30), time(18, 0)), Price(3, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.MONDAY,
+            HoursRange(time(8, 0), time(18, 0)), Price(5, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.TUESDAY,
+            HoursRange(time(9, 0), time(18, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.TUESDAY,
+            HoursRange(time(9, 0), time(18, 0)), Price(1, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.WEDNESDAY,
+            HoursRange(time(8, 0), time(18, 0)), Price(1, 15)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.WEDNESDAY,
+            HoursRange(time(8, 0), time(18, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.FRIDAY,
+            HoursRange(time(10, 0), time(12, 30)), Price(0, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.FRIDAY,
+            HoursRange(time(12, 30), time(17, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.FRIDAY,
+            HoursRange(time(10, 0), time(14, 30)), Price(5, 90)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.FRIDAY,
+            HoursRange(time(14, 30), time(17, 0)), Price(2, 30)),
+
+        PriceListPosition(
+            Services.INDIVIDUAL, WeekDay.SATURDAY,
+            HoursRange(time(11, 0), time(15, 0)), Price(6, 30)),
+
+        PriceListPosition(
+            Services.SWIMMING_SCHOOL, WeekDay.SATURDAY,
+            HoursRange(time(11, 0), time(15, 0)), Price(7, 30)),
+    ]
+
+    price_list_model = PriceListModel(
+        working_hours, PriceListModel.to_json(price_list))
+
+    with pytest.raises(ValueError):
+        price_list_model.get_pricing("abcd")
+
+    with pytest.raises(ValueError):
+        price_list_model.get_pricing(8)

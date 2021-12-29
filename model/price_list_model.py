@@ -56,7 +56,7 @@ class PriceListModel:
         filtered_positions = []
 
         for position in self._pricing:
-            if position.service == service:
+            if position.service == Services(service):
                 filtered_positions.append(position)
 
         return filtered_positions
@@ -77,7 +77,7 @@ class PriceListModel:
     def to_json(object) -> list:
         json_list = []
 
-        for position in object.get_pricing():
+        for position in object:
             json_list.append(PriceListPosition.to_json(position))
 
         return json_list
