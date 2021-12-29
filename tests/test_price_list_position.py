@@ -61,5 +61,5 @@ def test_price_list_pos_wrong_weekday():
 
 
 def test_price_list_pos_wrong_type():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         PriceListPosition(1, 1, "abcd", "efgh")

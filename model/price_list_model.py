@@ -8,6 +8,8 @@ class PriceListPosition:
         hours_range: HoursRange, price: Price
     ) -> None:
 
+        self._data_validation(hours_range, price)
+
         self.service = Services(service)
         self.day = WeekDay(day)
         self.hours_range = hours_range
@@ -67,9 +69,13 @@ class PriceListModel:
         # 2. Sort both lists by the begin hour of the PriceListPosition object
 
         sorted_ind_pricing = sorted(
-            ind_pricing, key=lambda price_pos: price_pos.hours_range.begin)
+            ind_pricing,
+            key=lambda price_pos: (
+                price_pos.day.value, price_pos.hours_range.begin))
         sorted_school_pricing = sorted(
-            school_pricing, key=lambda price_pos: price_pos.hours_range.begin)
+            school_pricing,
+            key=lambda price_pos: (
+                price_pos.day.value, price_pos.hours_range.begin))
 
         # 3. Initialize dictionaries, that to every day assign connected
         # hour ranges of the pricing (will throw an exception if hours are
@@ -78,16 +84,23 @@ class PriceListModel:
         ind_hours = {}
         school_hours = {}
 
-        for day in working_hours:
-            ind_hours[day] = sum(
-                position.hours_range for position in sorted_ind_pricing)
-            school_hours[day] = sum(
-                position.hours_range for position in sorted_school_pricing
-            )
+        for ind_price_pos in sorted_ind_pricing:
+            current_hours_range = ind_price_pos.hours_range
+
+            if ind_price_pos.day not in ind_hours:
+                ind_hours[ind_price_pos.day] = current_hours_range
+            else:
+                ind_hours[ind_price_pos.day] += current_hours_range
+
+        for school_price_pos in sorted_school_pricing:
+            current_hours_range = school_price_pos.hours_range
+
+            if school_price_pos.day not in school_hours:
+                school_hours[school_price_pos.day] = current_hours_range
+            else:
+                school_hours[school_price_pos.day] += current_hours_range
 
         # 4. Check if those hours match the working hours
 
-        for day in ind_hours:
-            if ind_hours[day] != working_hours[day]:
-                raise PricingHoursError(
-                    "Pricing hours don't match pool working hours")
+        if ind_hours != working_hours or school_hours != working_hours:
+            raise PricingHoursError("Pricing hours don't match working hours.")
