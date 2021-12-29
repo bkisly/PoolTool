@@ -66,7 +66,8 @@ class PriceListModel:
         ind_pricing = self.get_pricing(Services.INDIVIDUAL)
         school_pricing = self.get_pricing(Services.SWIMMING_SCHOOL)
 
-        # 2. Sort both lists by the begin hour of the PriceListPosition object
+        # 2. Sort both lists first by the WeekDay
+        # and then by the begin hour of the PriceListPosition object
 
         sorted_ind_pricing = sorted(
             ind_pricing,
