@@ -25,6 +25,17 @@ class PriceListPosition:
 
         return PriceListPosition(service, day, hours_range, price)
 
+    @staticmethod
+    def to_json(object) -> dict:
+        json_dict = {
+            "service": object.service,
+            "day": object.day,
+            "hours_range": HoursRange.to_json(object.hours_range),
+            "price": Price.to_json(object.price)
+        }
+
+        return json_dict
+
     def _data_validation(self, hours_range, price):
         if not isinstance(hours_range, HoursRange):
             raise TypeError("Range of hours must be HoursRange instance")
@@ -35,7 +46,7 @@ class PriceListPosition:
 
 class PriceListModel:
     def __init__(self, working_hours: dict, pricing_json: list) -> None:
-        self._pricing = self._read_pricing(pricing_json)
+        self._pricing = PriceListModel.from_json(pricing_json)
         self._price_list_validation(working_hours)
 
     def get_pricing(self, service: Services = None) -> list:
@@ -50,7 +61,8 @@ class PriceListModel:
 
         return filtered_positions
 
-    def _read_pricing(self, pricing_json: list) -> list:
+    @staticmethod
+    def from_json(pricing_json: list) -> list:
         pricing = []
 
         if not pricing_json:
@@ -60,6 +72,15 @@ class PriceListModel:
             pricing.append(PriceListPosition.from_json(position))
 
         return pricing
+
+    @staticmethod
+    def to_json(object) -> list:
+        json_list = []
+
+        for position in object.get_pricing():
+            json_list.append(PriceListPosition.to_json(position))
+
+        return json_list
 
     def _price_list_validation(self, working_hours: dict):
         # Working hours is a dict WeekDay -> HoursRange

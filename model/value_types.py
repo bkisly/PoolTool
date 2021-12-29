@@ -90,6 +90,15 @@ class Price:
         gr = json_dict["gr"]
         return Price(zl, gr)
 
+    @staticmethod
+    def to_json(object) -> dict:
+        json_dict = {
+            "zl": object.zl,
+            "gr": object.gr
+        }
+
+        return json_dict
+
     def _get_total_gr(self, price=None):
         if price is None:
             price = self
@@ -153,6 +162,21 @@ class HoursRange:
 
         return HoursRange(
             time(begin_hour, begin_minute), time(end_hour, end_minute))
+
+    @staticmethod
+    def to_json(object) -> dict:
+        json_dict = {
+            "begin": {
+                "hour": object.begin.hour,
+                "minute": object.begin.minute
+            },
+            "end": {
+                "hour": object.end.hour,
+                "minute": object.end.hour
+            }
+        }
+
+        return json_dict
 
     def _data_validation(self, begin, end):
         if not (isinstance(begin, time) and isinstance(end, time)):
