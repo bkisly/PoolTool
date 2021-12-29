@@ -1,4 +1,5 @@
-from exceptions.reservation_exceptions import InvalidLaneError, ReservationDurationError
+from exceptions.reservation_exceptions import InvalidLaneError
+from exceptions.reservation_exceptions import ReservationDurationError
 from model.value_types import Services, HoursRange, Price
 from datetime import date, timedelta
 
