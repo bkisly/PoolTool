@@ -1,7 +1,7 @@
 from enum import Enum
 from exceptions.value_types_exceptions import HoursRangeError
 from exceptions.value_types_exceptions import NegativePriceError
-from datetime import time
+from datetime import time, timedelta
 
 
 class Services(Enum):
@@ -136,6 +136,11 @@ class HoursRange:
             return True
         else:
             return False
+
+    def durtation(self) -> timedelta:
+        hours = self.end.hour - self.begin.hour
+        minutes = self.end.minute - self.begin.minute
+        return timedelta(hours=hours, minutes=minutes)
 
     def __add__(self, other):
         if not (self.begin == other.end or self.end == other.begin):
