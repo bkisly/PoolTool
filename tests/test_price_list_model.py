@@ -1,11 +1,14 @@
+from exceptions.price_list_exceptions import EmptyPriceListError
+from exceptions.price_list_exceptions import PricingHoursError
+from exceptions.value_types_exceptions import HoursRangeError
+
 from model.value_types import Price, Services, WeekDay, HoursRange
 from model.price_list_model import PriceListPosition, PriceListModel
+
 from datetime import time
+import pytest
 
 # Tests for PriceListModel.__init__()
-
-# @TODO: Write tests that check _read_pricing() and _pricing_validation()
-# functionality
 
 working_hours = {
     WeekDay.MONDAY: HoursRange(time(8, 0), time(18, 0)),
@@ -343,19 +346,168 @@ def test_price_list_model_init_correct():
 
 
 def test_price_list_model_init_malformed_json():
-    pass
+    mal_json_1 = []
+
+    mal_json_2 = [
+        {
+            "service": 0,
+            "day": 4,
+            "hours_range": 2,
+            "price": 7.4
+        }
+    ]
+
+    mal_json_3 = [
+        {
+            "service": 0,
+            "day": 0,
+            "hours_range": {
+                "begin": 0,
+                "end": 4
+            },
+            "price": {
+                "zl": 4,
+                "gr": 5
+            }
+        }
+    ]
+
+    with pytest.raises(EmptyPriceListError):
+        PriceListModel(working_hours, mal_json_1)
+
+    with pytest.raises(TypeError):
+        PriceListModel(working_hours, mal_json_2)
+
+    with pytest.raises(TypeError):
+        PriceListModel(working_hours, mal_json_3)
 
 
 def test_price_list_model_init_wrong_json_keys():
-    pass
+    wrong_json = [
+        {
+            "abcd": 0,
+            "bcde": 1,
+            "efgh": 2,
+            "gher": 3,
+        }
+    ]
+
+    with pytest.raises(KeyError):
+        PriceListModel(working_hours, wrong_json)
 
 
 def test_price_list_model_init_wrong_json_type():
-    pass
+    wrong_json_1 = {
+        "service": 1,
+        "day": 0,
+        "hours_range": 0,
+        "price": 5
+    }
+
+    wrong_json_2 = 45
+
+    with pytest.raises(TypeError):
+        PriceListModel(working_hours, wrong_json_1)
+
+    with pytest.raises(TypeError):
+        PriceListModel(working_hours, wrong_json_2)
 
 
 def test_price_list_model_init_wrong_json_hours():
-    pass
+    test_working_hours = {
+        WeekDay.MONDAY: HoursRange(time(9, 0), time(16, 0)),
+        WeekDay.MONDAY: HoursRange(time(10, 30), time(17, 0))
+    }
+
+    wrong_json_1 = [
+        # Monday
+
+        {
+            "service": 0,
+            "day": 0,
+            "hours_range": {
+                "begin": {
+                    "hour": 10,
+                    "minute": 30
+                },
+                "end": {
+                    "hour": 16,
+                    "minute": 0
+                }
+            },
+            "price": {
+                "zl": 4,
+                "gr": 50
+            }
+        },
+
+        {
+            "service": 1,
+            "day": 0,
+            "hours_range": {
+                "begin": {
+                    "hour": 10,
+                    "minute": 30
+                },
+                "end": {
+                    "hour": 16,
+                    "minute": 0
+                }
+            },
+            "price": {
+                "zl": 4,
+                "gr": 50
+            }
+        }
+    ]
+
+    wrong_json_2 = [
+        # Monday
+
+        {
+            "service": 0,
+            "day": 0,
+            "hours_range": {
+                "begin": {
+                    "hour": 10,
+                    "minute": 30
+                },
+                "end": {
+                    "hour": 16,
+                    "minute": 0
+                }
+            },
+            "price": {
+                "zl": 4,
+                "gr": 50
+            }
+        },
+
+        {
+            "service": 0,
+            "day": 0,
+            "hours_range": {
+                "begin": {
+                    "hour": 12,
+                    "minute": 30
+                },
+                "end": {
+                    "hour": 17,
+                    "minute": 0
+                }
+            },
+            "price": {
+                "zl": 4,
+                "gr": 50
+            }
+        }
+    ]
+
+    with pytest.raises(PricingHoursError):
+        PriceListModel(test_working_hours, wrong_json_1)
+
+    with pytest.raises(HoursRangeError):
+        PriceListModel(test_working_hours, wrong_json_2)
 
 
 # Tests for PriceListModel.get_pricing()

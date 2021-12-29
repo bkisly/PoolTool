@@ -1,3 +1,4 @@
+from exceptions.price_list_exceptions import EmptyPriceListError
 from exceptions.price_list_exceptions import PricingHoursError
 from model.value_types import Price, HoursRange, Services, WeekDay
 
@@ -33,7 +34,7 @@ class PriceListPosition:
 
 
 class PriceListModel:
-    def __init__(self, working_hours: dict, pricing_json: dict) -> None:
+    def __init__(self, working_hours: dict, pricing_json: list) -> None:
         self._pricing = self._read_pricing(pricing_json)
         self._price_list_validation(working_hours)
 
@@ -49,8 +50,11 @@ class PriceListModel:
 
         return filtered_positions
 
-    def _read_pricing(self, pricing_json: dict) -> list:
+    def _read_pricing(self, pricing_json: list) -> list:
         pricing = []
+
+        if not pricing_json:
+            raise EmptyPriceListError("Price list cannot be empty.")
 
         for position in pricing_json:
             pricing.append(PriceListPosition.from_json(position))
