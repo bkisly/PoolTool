@@ -4,3 +4,7 @@ class ReservationDurationError(Exception):
 
 class InvalidLaneError(Exception):
     pass
+
+
+class ReservationTimeTakenError(Exception):
+    pass

@@ -1,5 +1,6 @@
 from exceptions.reservation_exceptions import InvalidLaneError
 from exceptions.reservation_exceptions import ReservationDurationError
+from exceptions.reservation_exceptions import ReservationTimeTakenError
 from model.value_types import Services, HoursRange, Price
 from datetime import date, timedelta
 
@@ -46,15 +47,28 @@ class SchoolReservation(Reservation):
 
 
 class ReservationSystemModel:
-    def __init__(self, price_list_model) -> None:
+    def __init__(
+            self, price_list_model,
+            current_day: date, lanes_amount: int) -> None:
+
         self.reservations = []
-        self._price_list_model = price_list_model
+        self._price_list = price_list_model.get_pricing()
+        self._current_day = current_day
+        self._lanes_amount = lanes_amount
 
-    def add_reservation(self, service, day, hours_range):
+    def add_reservation(
+            self, service: Services, date: date, hours_range: HoursRange):
+        # VERIFICATION
+        # 1. If type is okay \an element of Reservation constructor
+        # 2. If date isn't past
+        # 3. If hours range isn't out of working hours
+        # 4. If reservation time isn't taken (propose closest time if taken)
+
+        # RESERVATION
+        # 1. Instantiate a new Reservation object
+        # 2. Add it to the list of reservations
         pass
 
-    def read_reservations(self):
-        pass
-
-    def write_reservations(self):
-        pass
+    def _check_reservation_time(self, date: date, hours_range: HoursRange):
+        if date < self._current_day:
+            raise ValueError("Reservation date must be current day or later.")
