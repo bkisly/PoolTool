@@ -1,8 +1,8 @@
 from exceptions.reservation_exceptions import InvalidLaneError
 from exceptions.reservation_exceptions import ReservationDurationError
 from exceptions.reservation_exceptions import ReservationTimeTakenError
-from model.value_types import Services, HoursRange, Price
-from datetime import date, timedelta
+from model.value_types import Services, HoursRange, Price, WeekDay
+from datetime import date, timedelta, datetime, time
 
 
 class Reservation:
@@ -48,13 +48,13 @@ class SchoolReservation(Reservation):
 
 class ReservationSystemModel:
     def __init__(
-            self, price_list_model,
-            current_day: date, lanes_amount: int) -> None:
+            self, pool_model) -> None:
 
         self.reservations = []
-        self._price_list = price_list_model.get_pricing()
-        self._current_day = current_day
-        self._lanes_amount = lanes_amount
+        self._price_list = pool_model.price_list_model().get_pricing()
+        self._current_day = pool_model.current_day()
+        self._lanes_amount = pool_model.lanes_amount()
+        self._woring_hours = pool_model.working_hours()
 
     def add_reservation(
             self, service: Services, date: date, hours_range: HoursRange):
@@ -72,3 +72,57 @@ class ReservationSystemModel:
     def _check_reservation_time(self, date: date, hours_range: HoursRange):
         if date < self._current_day:
             raise ValueError("Reservation date must be current day or later.")
+
+        week_day = WeekDay(date.weekday())
+        available_hours = self._woring_hours[week_day]
+        begin = hours_range.begin
+        end = hours_range.end
+
+        if not (available_hours.is_in_range(begin)
+                and available_hours.is_in_range(end)):
+            raise ValueError("Reservation time must fit working hours.")
+
+        if self._check_reservation_intersection(hours_range, date):
+            # Propose new date
+            proposed_date = datetime.date(2021, 12, 12)
+            raise ReservationTimeTakenError(
+                proposed_date,
+                f"""There's an existing reservation for the selected time.
+                Closest possible reservation time: {proposed_date}""")
+
+    def _check_reservation_intersection(
+            self, hours_range: HoursRange, date: date) -> bool:
+        for reservation in self.reservations:
+            if reservation.date == date:
+                if reservation.hours_range.check_intersection(hours_range):
+                    return True
+
+        return False
+
+    def _propose_new_date(self, date: date, hours_range: HoursRange):
+        expected_duration = hours_range.durtation()
+        start_time = datetime(
+            date.year, date.month, date.day,
+            hours_range.begin.hour, hours_range.begin.minute)
+
+        date_found = False
+
+        while not date_found:
+            new_start = time(start_time.hour, start_time.minute)
+            new_end = new_start + expected_duration
+            new_weekday = WeekDay(start_time.weekday())
+            available_hours = self._woring_hours[new_weekday]
+
+            if (available_hours.is_in_range(new_start)
+                    and available_hours.is_in_range(new_end)):
+
+                new_range = HoursRange(new_start, new_end)
+                if not self._check_reservation_intersection(
+                        new_range, start_time.date()):
+
+                    date_found = True
+
+            if not date_found:
+                start_time += timedelta(minutes=30)
+
+        return start_time

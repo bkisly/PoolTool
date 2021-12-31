@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 class ReservationDurationError(Exception):
     pass
 
@@ -7,4 +10,6 @@ class InvalidLaneError(Exception):
 
 
 class ReservationTimeTakenError(Exception):
-    pass
+    def __init__(self, proposed_date: datetime, *args: object) -> None:
+        self.proposed_date = proposed_date
+        super().__init__(*args)
