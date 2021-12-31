@@ -58,20 +58,29 @@ class ReservationSystemModel:
 
     def add_reservation(
             self, service: Services, date: date, hours_range: HoursRange):
-        # VERIFICATION
-        # 1. If type is okay \an element of Reservation constructor
-        # 2. If date isn't past
-        # 3. If hours range isn't out of working hours
-        # 4. If reservation time isn't taken (propose closest time if taken)
+        self._check_reservation_time(date, hours_range)
 
-        # RESERVATION
-        # 1. Instantiate a new Reservation object
-        # 2. Add it to the list of reservations
+        # @TODO: Calculate the price for the reservation
+        # Add new Reservation object to the list
+
+    def calculate_total_income(self) -> Price:
+        pass
+
+    def _calculate_reservation_price(
+            self, date: date, hours_range: HoursRange) -> Price:
+        # Calculation is based on the sum of prices based on prices per hour
+        # for particular hours ranges included in reservation hours range
+
         pass
 
     def _check_reservation_time(self, date: date, hours_range: HoursRange):
+        # 1. Check if reservation date isn't earlier than the current day
+
         if date < self._current_day:
             raise ValueError("Reservation date must be current day or later.")
+
+        # 2. Check if reservation time fits
+        # pool working hours pool working hours
 
         week_day = WeekDay(date.weekday())
         available_hours = self._woring_hours[week_day]
@@ -82,13 +91,16 @@ class ReservationSystemModel:
                 and available_hours.is_in_range(end)):
             raise ValueError("Reservation time must fit working hours.")
 
+        # 3. Check if there's not other reservation for this time. If yes,
+        # propose new time for the reservation.
+
         if self._check_reservation_intersection(hours_range, date):
-            # Propose new date
-            proposed_date = datetime.date(2021, 12, 12)
+            proposed_date = self._propose_new_date(date, hours_range)
             raise ReservationTimeTakenError(
                 proposed_date,
                 f"""There's an existing reservation for the selected time.
-                Closest possible reservation time: {proposed_date}""")
+                Closest possible reservation time with
+                identical duration: {proposed_date}""")
 
     def _check_reservation_intersection(
             self, hours_range: HoursRange, date: date) -> bool:
