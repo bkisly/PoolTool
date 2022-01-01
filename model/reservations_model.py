@@ -2,7 +2,7 @@ from exceptions.reservation_exceptions import InvalidLaneError
 from exceptions.reservation_exceptions import ReservationDurationError
 from exceptions.reservation_exceptions import ReservationTimeTakenError
 from model.value_types import Services, HoursRange, Price, WeekDay
-from datetime import date, timedelta, datetime, time
+from datetime import date, timedelta, datetime
 
 
 # @TODO: IMPORTANT TO DO WITH RESERVATIONMODEL:
@@ -23,16 +23,25 @@ from datetime import date, timedelta, datetime, time
 
 class Reservation:
     def __init__(
-            self, service: Services, date: date,
+            self, date: date,
             hours_range: HoursRange, price: Price) -> None:
 
         self._data_validation(date, hours_range, price)
         self._validate_hours_range(hours_range)
 
-        self.service = Services(service)
         self.date = date
         self.hours_range = hours_range
         self.price = price
+
+    def is_in_datetime(self, date_time: datetime) -> bool:
+        if (self.date == date_time.date()
+                and self.hours_range.is_in_range(date_time.time())):
+            return True
+
+        return False
+
+    def get_service(self) -> Services:
+        return Services.INDIVIDUAL
 
     def _data_validation(self, day, hours_range, price):
         if not isinstance(day, date):
@@ -52,14 +61,17 @@ class Reservation:
 
 class SchoolReservation(Reservation):
     def __init__(
-            self, lane: int, service: Services,
+            self, lane: int,
             date: date, hours_range: HoursRange, price: Price) -> None:
 
         if not str(lane).isdigit():
             raise InvalidLaneError("Lane must be a number greater or equal 0.")
 
         self.lane = lane
-        super().__init__(service, date, hours_range, price)
+        super().__init__(date, hours_range, price)
+
+    def get_service(self) -> Services:
+        return Services.SWIMMING_SCHOOL
 
 
 class ReservationSystemModel:
@@ -67,21 +79,77 @@ class ReservationSystemModel:
             self, pool_model) -> None:
 
         self.reservations = []
-        self._price_list = pool_model.price_list_model().get_pricing()
-        self._current_day = pool_model.current_day()
-        self._lanes_amount = pool_model.lanes_amount()
-        self._woring_hours = pool_model.working_hours()
+        self._price_list = pool_model.price_list_model.get_pricing()
+        self._current_day = pool_model.current_day
+        self._lanes_amount = pool_model.lanes_amount
+        self._woring_hours = pool_model.working_hours
 
     def add_reservation(
             self, service: Services, date: date,
             hours_range: HoursRange, lane: int = None):
-        self._check_reservation_time(date, hours_range)
+
+        try:
+            self._check_reservation_time(date, hours_range)
+        except ReservationTimeTakenError:
+            proposed_date = self._propose_new_date(
+                date, hours_range, service, lane)
+
+            raise ReservationTimeTakenError(
+                proposed_date, f"""Given time for the reservation is not
+                available. Closest possible reservation time under the same
+                conditions: {proposed_date}""")
+        except Exception:
+            raise
 
         price = self._calculate_reservation_price(date, hours_range)
-        # Add new Reservation object to the list
+        reservation = None
+
+        if service == Services.INDIVIDUAL:
+            pass
+        else:
+            pass
 
     def calculate_total_income(self) -> Price:
-        pass
+        total_income = Price(0, 0)
+
+        for reservation in self.reservations:
+            if reservation.date == self._current_day:
+                total_income += reservation.price
+
+        return total_income
+
+    def available_lanes(self, date_time: datetime) -> list:
+        lanes = list(range(self._lanes_amount))
+
+        for reservation in self.reservations:
+            if isinstance(reservation, SchoolReservation):
+                if (reservation.is_in_datetime(date_time)
+                        and reservation.lane in lanes):
+                    lanes.remove(reservation.lane)
+
+        return lanes
+
+    def available_tickets(self, date_time: datetime) -> int:
+        return 5 * self.available_lanes(date_time)
+
+    def is_lane_taken(self, lane: int, date_time: datetime) -> bool:
+        for reservation in self.reservations:
+            if isinstance(reservation, SchoolReservation):
+                if (reservation.is_in_datetime(date_time)
+                        and reservation.lane == lane):
+                    return True
+
+        return False
+
+    def reservations_amount(self, service: Services, date_time: datetime):
+        amount = 0
+
+        for reservation in self.reservations:
+            if reservation.is_in_datetime(date_time):
+                if reservation.get_service() == service:
+                    amount += 1
+
+        return amount
 
     def _calculate_reservation_price(
             self, date: date, hours_range: HoursRange,
@@ -118,7 +186,9 @@ class ReservationSystemModel:
 
         return Price(reservation_total_gr // 100, reservation_total_gr % 100)
 
-    def _check_reservation_time(self, date: date, hours_range: HoursRange):
+    def _check_reservation_time(
+            self, date: date, hours_range: HoursRange,
+            service: Services, lane: int):
         # 1. Check if reservation date isn't earlier than the current day
 
         if date < self._current_day:
@@ -136,50 +206,67 @@ class ReservationSystemModel:
                 and available_hours.is_in_range(end)):
             raise ValueError("Reservation time must fit working hours.")
 
-        # 3. Check if there's not other reservation for this time. If yes,
-        # propose new time for the reservation.
+        # 3. Check if there's not other reservation for this time. New date
+        # proposal in except block inside add_reservation method.
 
-        if self._check_reservation_intersection(hours_range, date):
-            proposed_date = self._propose_new_date(date, hours_range)
-            raise ReservationTimeTakenError(
-                proposed_date,
-                f"""There's an existing reservation for the selected time.
-                Closest possible reservation time with
-                identical duration: {proposed_date}""")
+        if self._check_reservation_intersection(
+                hours_range, date, service, lane):
+            raise ReservationTimeTakenError
 
     def _check_reservation_intersection(
-            self, hours_range: HoursRange, date: date) -> bool:
-        for reservation in self.reservations:
-            if reservation.date == date:
-                if reservation.hours_range.check_intersection(hours_range):
+            self, hours_range: HoursRange,
+            date: date, service: Services, lane: int) -> bool:
+
+        current_time = hours_range.begin
+
+        while current_time < hours_range.end:
+            date_time = datetime(
+                date.year, date.month, date.day,
+                current_time.hour, current_time.minute)
+
+            if service == Services.INDIVIDUAL:
+                if self.available_tickets(date_time) == 0:
                     return True
+            else:
+                if self.is_lane_taken(lane, date_time):
+                    return True
+
+                new_lanes_amount = self.available_lanes(current_time) - 1
+                if (5 * new_lanes_amount <
+                        self.reservations_amount(
+                            Services.INDIVIDUAL, current_time)):
+                    return True
+
+                new_lanes_taken = self._lanes_amount - new_lanes_amount
+                if new_lanes_taken > .35 * self._lanes_amount:
+                    return True
+
+            current_time += timedelta(minutes=30)
 
         return False
 
-    def _propose_new_date(self, date: date, hours_range: HoursRange):
-        expected_duration = hours_range.durtation()
-        start_time = datetime(
+    def _propose_new_date(
+            self, date: date, hours_range: HoursRange,
+            service: Services, lane: int) -> datetime:
+
+        proposed_datetime = datetime(
             date.year, date.month, date.day,
             hours_range.begin.hour, hours_range.begin.minute)
-
+        expected_duration = hours_range.durtation()
         date_found = False
 
         while not date_found:
-            new_start = time(start_time.hour, start_time.minute)
-            new_end = new_start + expected_duration
-            new_weekday = WeekDay(start_time.weekday())
-            available_hours = self._woring_hours[new_weekday]
+            new_begin = proposed_datetime.time()
+            new_end = new_begin + expected_duration
+            new_range = HoursRange(new_begin, new_end)
 
-            if (available_hours.is_in_range(new_start)
-                    and available_hours.is_in_range(new_end)):
+            try:
+                self._check_reservation_time(
+                    proposed_datetime.date(), new_range, service, lane)
+            except Exception:
+                proposed_datetime += timedelta(minutes=30)
+                continue
 
-                new_range = HoursRange(new_start, new_end)
-                if not self._check_reservation_intersection(
-                        new_range, start_time.date()):
+            date_found = True
 
-                    date_found = True
-
-            if not date_found:
-                start_time += timedelta(minutes=30)
-
-        return start_time
+        return proposed_datetime
