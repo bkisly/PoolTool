@@ -5,22 +5,6 @@ from model.value_types import Services, HoursRange, Price, WeekDay
 from datetime import date, timedelta, datetime
 
 
-# @TODO: IMPORTANT TO DO WITH RESERVATIONMODEL:
-# 1. Change the way of checking if there's an existing reservation.
-# a) for schools we have to check if the lane's taken and if not, we have to
-# check if the amount of lanes taken won't be greater than 35% (verify this)
-# b) for individuals we have to check if there are enough tickets for the
-# selected time
-# 2. Change the way of proposing new reservation time.
-# a) for individuals we have to check if for the next reservation time there
-# are any tickets left
-# b) for schools we have to check if for the next reservation time there are
-# any lanes left AND if this doesn't cause some individuals
-# to be over the limit
-# 3. Implement PoolModel - some of the methods and data there is required to
-# proceed verification during reservation process.
-
-
 class Reservation:
     def __init__(
             self, date: date,
@@ -102,12 +86,13 @@ class ReservationSystemModel:
             raise
 
         price = self._calculate_reservation_price(date, hours_range)
-        reservation = None
 
         if service == Services.INDIVIDUAL:
-            pass
+            reservation = Reservation(date, hours_range, price)
         else:
-            pass
+            reservation = SchoolReservation(lane, date, hours_range, price)
+
+        self.reservations.append(reservation)
 
     def calculate_total_income(self) -> Price:
         total_income = Price(0, 0)
@@ -206,8 +191,8 @@ class ReservationSystemModel:
                 and available_hours.is_in_range(end)):
             raise ValueError("Reservation time must fit working hours.")
 
-        # 3. Check if there's not other reservation for this time. New date
-        # proposal in except block inside add_reservation method.
+        # 3. Check the conditions regarding lanes amount,
+        # available tickets etc.
 
         if self._check_reservation_intersection(
                 hours_range, date, service, lane):
