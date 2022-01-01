@@ -5,6 +5,22 @@ from model.value_types import Services, HoursRange, Price, WeekDay
 from datetime import date, timedelta, datetime, time
 
 
+# @TODO: IMPORTANT TO DO WITH RESERVATIONMODEL:
+# 1. Change the way of checking if there's an existing reservation.
+# a) for schools we have to check if the lane's taken and if not, we have to
+# check if the amount of lanes taken won't be greater than 35% (verify this)
+# b) for individuals we have to check if there are enough tickets for the
+# selected time
+# 2. Change the way of proposing new reservation time.
+# a) for individuals we have to check if for the next reservation time there
+# are any tickets left
+# b) for schools we have to check if for the next reservation time there are
+# any lanes left AND if this doesn't cause some individuals
+# to be over the limit
+# 3. Implement PoolModel - some of the methods and data there is required to
+# proceed verification during reservation process.
+
+
 class Reservation:
     def __init__(
             self, service: Services, date: date,
@@ -57,21 +73,50 @@ class ReservationSystemModel:
         self._woring_hours = pool_model.working_hours()
 
     def add_reservation(
-            self, service: Services, date: date, hours_range: HoursRange):
+            self, service: Services, date: date,
+            hours_range: HoursRange, lane: int = None):
         self._check_reservation_time(date, hours_range)
 
-        # @TODO: Calculate the price for the reservation
+        price = self._calculate_reservation_price(date, hours_range)
         # Add new Reservation object to the list
 
     def calculate_total_income(self) -> Price:
         pass
 
     def _calculate_reservation_price(
-            self, date: date, hours_range: HoursRange) -> Price:
-        # Calculation is based on the sum of prices based on prices per hour
-        # for particular hours ranges included in reservation hours range
+            self, date: date, hours_range: HoursRange,
+            service: Services) -> Price:
 
-        pass
+        # 1. Selecting those PriceListPosition objects, that belong to the
+        # particular reservation
+
+        day = WeekDay(date.weekday())
+        positions = []
+
+        for position in self._price_list:
+            if (hours_range.check_intersection(position.hours_range)
+                    and position.day == day and position.service == service):
+                positions.append(position)
+
+        # 2. Adding parts of the price based on the reservation price for the
+        # particular hour
+
+        reservation_total_gr = 0
+        current_time = hours_range.begin
+
+        while current_time < hours_range.end:
+            current_begin = current_time
+            current_time += timedelta(minutes=30)
+            current_range = HoursRange(current_begin, current_time)
+
+            for position in positions:
+                if current_range.check_intersection(position.hours_range):
+                    current_position = position
+                    break
+
+            reservation_total_gr += current_position.price.get_total_gr() / 2
+
+        return Price(reservation_total_gr // 100, reservation_total_gr % 100)
 
     def _check_reservation_time(self, date: date, hours_range: HoursRange):
         # 1. Check if reservation date isn't earlier than the current day

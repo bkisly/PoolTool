@@ -99,7 +99,7 @@ class Price:
 
         return json_dict
 
-    def _get_total_gr(self, price=None):
+    def get_total_gr(self, price=None):
         if price is None:
             price = self
 
