@@ -26,14 +26,14 @@ class Price:
         self.gr = gr
 
     def __add__(self, other):
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
         result_total_gr = self_total_gr + other_total_gr
         return Price(result_total_gr // 100, result_total_gr % 100)
 
     def __sub__(self, other):
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
         result_total_gr = self_total_gr - other_total_gr
 
         if result_total_gr < 0:
@@ -49,8 +49,8 @@ class Price:
             return False
 
     def __lt__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr < other_total_gr:
             return True
@@ -58,8 +58,8 @@ class Price:
             return False
 
     def __gt__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr > other_total_gr:
             return True
@@ -67,8 +67,8 @@ class Price:
             return False
 
     def __le__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr <= other_total_gr:
             return True
@@ -76,8 +76,8 @@ class Price:
             return False
 
     def __ge__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr >= other_total_gr:
             return True
