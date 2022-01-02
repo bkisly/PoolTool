@@ -72,8 +72,12 @@ class ReservationSystemModel:
             self, service: Services, date: date,
             hours_range: HoursRange, lane: int = None):
 
+        # If a reservation can't be added due to the availability,
+        # propose the closest possible date and time and pass
+        # the raised exception. Otherwise pass other exceptions which occurred
+
         try:
-            self._check_reservation_time(date, hours_range)
+            self._validate_reservation(date, hours_range)
         except ReservationTimeTakenError:
             proposed_date = self._propose_new_date(
                 date, hours_range, service, lane)
@@ -84,6 +88,9 @@ class ReservationSystemModel:
                 conditions: {proposed_date}""")
         except Exception:
             raise
+
+        # Calculate the reservation price and add the object of proper type
+        # to the reservations list
 
         price = self._calculate_reservation_price(date, hours_range)
 
@@ -171,7 +178,7 @@ class ReservationSystemModel:
 
         return Price(reservation_total_gr // 100, reservation_total_gr % 100)
 
-    def _check_reservation_time(
+    def _validate_reservation(
             self, date: date, hours_range: HoursRange,
             service: Services, lane: int):
         # 1. Check if reservation date isn't earlier than the current day
@@ -191,7 +198,12 @@ class ReservationSystemModel:
                 and available_hours.is_in_range(end)):
             raise ValueError("Reservation time must fit working hours.")
 
-        # 3. Check the conditions regarding lanes amount,
+        # 3. Check if the lane isn't greater than the amount of lanes
+
+        if lane >= self._lanes_amount:
+            raise ValueError("Lane number must be in range of lanes amount.")
+
+        # 4. Check the conditions regarding lanes amount,
         # available tickets etc.
 
         if self._check_reservation_intersection(
@@ -203,6 +215,9 @@ class ReservationSystemModel:
             date: date, service: Services, lane: int) -> bool:
 
         current_time = hours_range.begin
+
+        # Algorithm is checking every 30-minutes period of the
+        # reservation from begin to end
 
         while current_time < hours_range.end:
             date_time = datetime(
@@ -216,11 +231,17 @@ class ReservationSystemModel:
                 if self.is_lane_taken(lane, date_time):
                     return True
 
+                # Check if lane reservation won't cause the situation, when
+                # in some time number of tickets is below number of
+                # individual reservations
+
                 new_lanes_amount = self.available_lanes(current_time) - 1
                 if (5 * new_lanes_amount <
                         self.reservations_amount(
                             Services.INDIVIDUAL, current_time)):
                     return True
+
+                # Check if number of taken lanes isn't over 35% of all lanes
 
                 new_lanes_taken = self._lanes_amount - new_lanes_amount
                 if new_lanes_taken > .35 * self._lanes_amount:
@@ -240,13 +261,19 @@ class ReservationSystemModel:
         expected_duration = hours_range.durtation()
         date_found = False
 
+        # Algorithm tries to find a fitting reservation under the same
+        # conditions every next 30 minutes
+
         while not date_found:
             new_begin = proposed_datetime.time()
             new_end = new_begin + expected_duration
             new_range = HoursRange(new_begin, new_end)
 
+            # Algorithm proceeds until the valid reservation is found
+            # and returns fitting combination of date and time
+
             try:
-                self._check_reservation_time(
+                self._validate_reservation(
                     proposed_datetime.date(), new_range, service, lane)
             except Exception:
                 proposed_datetime += timedelta(minutes=30)
