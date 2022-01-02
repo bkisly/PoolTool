@@ -77,7 +77,7 @@ class ReservationSystemModel:
         # the raised exception. Otherwise pass other exceptions which occurred
 
         try:
-            self._validate_reservation(date, hours_range)
+            self._validate_reservation(date, hours_range, service, lane)
         except ReservationTimeTakenError:
             proposed_date = self._propose_new_date(
                 date, hours_range, service, lane)
@@ -92,7 +92,7 @@ class ReservationSystemModel:
         # Calculate the reservation price and add the object of proper type
         # to the reservations list
 
-        price = self._calculate_reservation_price(date, hours_range)
+        price = self._calculate_reservation_price(date, hours_range, service)
 
         if service == Services.INDIVIDUAL:
             reservation = Reservation(date, hours_range, price)
@@ -166,7 +166,11 @@ class ReservationSystemModel:
 
         while current_time < hours_range.end:
             current_begin = current_time
-            current_time += timedelta(minutes=30)
+
+            dt = datetime.combine(date, current_time)
+            dt += timedelta(minutes=30)
+            current_time = dt.time()
+
             current_range = HoursRange(current_begin, current_time)
 
             for position in positions:
@@ -176,11 +180,12 @@ class ReservationSystemModel:
 
             reservation_total_gr += current_position.price.get_total_gr() / 2
 
-        return Price(reservation_total_gr // 100, reservation_total_gr % 100)
+        return Price(
+            int(reservation_total_gr // 100), int(reservation_total_gr % 100))
 
     def _validate_reservation(
             self, date: date, hours_range: HoursRange,
-            service: Services, lane: int):
+            service: Services, lane: int = None):
         # 1. Check if reservation date isn't earlier than the current day
 
         if date < self._current_day:
@@ -200,7 +205,7 @@ class ReservationSystemModel:
 
         # 3. Check if the lane isn't greater than the amount of lanes
 
-        if lane >= self._lanes_amount:
+        if lane is not None and (lane >= self._lanes_amount):
             raise ValueError("Lane number must be in range of lanes amount.")
 
         # 4. Check the conditions regarding lanes amount,
@@ -235,10 +240,10 @@ class ReservationSystemModel:
                 # in some time number of tickets is below number of
                 # individual reservations
 
-                new_lanes_amount = self.available_lanes(current_time) - 1
+                new_lanes_amount = len(self.available_lanes(date_time)) - 1
                 if (5 * new_lanes_amount <
                         self.reservations_amount(
-                            Services.INDIVIDUAL, current_time)):
+                            Services.INDIVIDUAL, date_time)):
                     return True
 
                 # Check if number of taken lanes isn't over 35% of all lanes
@@ -247,7 +252,9 @@ class ReservationSystemModel:
                 if new_lanes_taken > .35 * self._lanes_amount:
                     return True
 
-            current_time += timedelta(minutes=30)
+            dt = datetime.combine(date, current_time)
+            dt += timedelta(minutes=30)
+            current_time = dt.time()
 
         return False
 
