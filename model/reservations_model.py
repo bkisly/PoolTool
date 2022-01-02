@@ -122,7 +122,7 @@ class ReservationSystemModel:
         return lanes
 
     def available_tickets(self, date_time: datetime) -> int:
-        return 5 * self.available_lanes(date_time)
+        return 5 * len(self.available_lanes(date_time))
 
     def is_lane_taken(self, lane: int, date_time: datetime) -> bool:
         for reservation in self.reservations:
