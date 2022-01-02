@@ -16,7 +16,7 @@ class PoolModel:
             initial_json_data["working_hours"])
         self.lanes_amount = initial_json_data["lanes_amount"]
         self.price_list_model = PriceListModel(
-            self._working_hours, initial_json_data["price_list"])
+            self.working_hours, initial_json_data["price_list"])
         self.reservation_system_model = ReservationSystemModel(self)
 
         # Current day is stored in a config file that is managed in the
@@ -24,12 +24,15 @@ class PoolModel:
 
         if not isinstance(current_day, date):
             raise TypeError("Current day must be an instance of date class")
-        self._current_day = current_day
+        self.current_day = current_day
 
     def next_day(self) -> None:
-        self._current_day += timedelta(days=1)
+        self.current_day += timedelta(days=1)
 
     def _create_working_hours_dict(self, working_hours_json: dict) -> dict:
+        if not working_hours_json:
+            raise InvalidWorkingHoursError("Working hours cannot be empty.")
+
         working_hours = {}
 
         for day in working_hours_json:
