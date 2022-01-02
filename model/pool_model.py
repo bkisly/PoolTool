@@ -11,6 +11,10 @@ class PoolModel:
         # process solved by PriceListModel class) to the attributes.
         # 2. Create WorkingHours parser from JSON to the dict of
         # WeekDay -> HoursRange
+        if not isinstance(current_day, date):
+            raise TypeError("Current day must be an instance of date class")
+        self.current_day = current_day
+
         self.name = initial_json_data["name"]
         self.working_hours = self._create_working_hours_dict(
             initial_json_data["working_hours"])
@@ -21,10 +25,6 @@ class PoolModel:
 
         # Current day is stored in a config file that is managed in the
         # admin mode
-
-        if not isinstance(current_day, date):
-            raise TypeError("Current day must be an instance of date class")
-        self.current_day = current_day
 
     def next_day(self) -> None:
         self.current_day += timedelta(days=1)

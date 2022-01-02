@@ -1,7 +1,3 @@
-# @TODO: PoolModel needs to be written in order to correctly test
-# ReservationSystemModel class - it requires attributes and methods that
-# are inside PoolModel class
-
 # Tests for ReservationSystemModel.__init__()
 
 def test_res_system_init_typical():
