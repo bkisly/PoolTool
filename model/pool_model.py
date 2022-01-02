@@ -22,6 +22,8 @@ class PoolModel:
         # Current day is stored in a config file that is managed in the
         # admin mode
 
+        if not isinstance(current_day, date):
+            raise TypeError("Current day must be an instance of date class")
         self._current_day = current_day
 
     def next_day(self) -> None:
