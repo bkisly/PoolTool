@@ -1,6 +1,8 @@
-from datetime import date, time
+from datetime import date, datetime, time
 from model.pool_model import PoolModel
-from model.reservations_model import Reservation, ReservationSystemModel
+from model.reservations_model import ReservationSystemModel
+from exceptions.reservation_exceptions import InvalidLaneError
+from exceptions.reservation_exceptions import ReservationTimeTakenError
 import pytest
 
 from model.value_types import HoursRange, Price, Services
@@ -384,31 +386,109 @@ def test_res_system_add_correct():
 
 
 def test_res_system_add_earlier_day():
-    pass
+    reservation_system = ReservationSystemModel(pool_model)
+
+    with pytest.raises(ValueError):
+        reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2021, 12, 31),
+            HoursRange(time(12, 0), time(14, 0)), 1)
 
 
 def test_res_system_add_out_of_working_hours():
-    pass
+    reservation_system = ReservationSystemModel(pool_model)
+
+    with pytest.raises(ValueError):
+        reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2022, 1, 1),
+            HoursRange(time(12, 0), time(19, 0)), 1)
 
 
 def test_res_system_add_incorrect_lane():
-    pass
+    reservation_system = ReservationSystemModel(pool_model)
+
+    with pytest.raises(InvalidLaneError):
+        reservation_system.add_reservation(
+                Services.SWIMMING_SCHOOL, date(2022, 1, 1),
+                HoursRange(time(12, 0), time(14, 0)), 8)
+
+    with pytest.raises(InvalidLaneError):
+        reservation_system.add_reservation(
+                Services.SWIMMING_SCHOOL, date(2022, 1, 1),
+                HoursRange(time(12, 0), time(14, 0)), -4)
+
+    with pytest.raises(ValueError):
+        reservation_system.add_reservation(
+                Services.SWIMMING_SCHOOL, date(2022, 1, 1),
+                HoursRange(time(12, 0), time(14, 0)), "abcd")
 
 
 def test_res_system_add_no_tickets_available():
-    pass
+    pool_model.lanes_amount = 1
+    reservation_system = ReservationSystemModel(pool_model)
+
+    for i in range(5):
+        reservation_system.add_reservation(
+            Services.INDIVIDUAL, date(2022, 1, 3),
+            HoursRange(time(9, 30), time(12, 0)))
+
+    with pytest.raises(ReservationTimeTakenError) as e:
+        reservation_system.add_reservation(
+                Services.INDIVIDUAL, date(2022, 1, 3),
+                HoursRange(time(9, 30), time(12, 0)))
+
+    proposed_datetime = e.value.proposed_date
+    assert proposed_datetime == datetime(2022, 1, 3, 12, 0)
+
+    pool_model.lanes_amount = 5
 
 
 def test_res_system_add_taken_lane():
-    pass
+    reservation_system = ReservationSystemModel(pool_model)
+
+    reservation_system.add_reservation(
+        Services.SWIMMING_SCHOOL, date(2022, 1, 3),
+        HoursRange(time(8, 0), time(17, 30)), 3)
+
+    with pytest.raises(ReservationTimeTakenError) as e:
+        reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2022, 1, 3),
+            HoursRange(time(10, 0), time(17, 30)), 3)
+
+    proposed_datetime = e.value.proposed_date
+    assert proposed_datetime == datetime(2022, 1, 4, 9, 0)
 
 
 def test_res_system_add_decreasing_available_tickets():
-    pass
+    reservation_system = ReservationSystemModel(pool_model)
+
+    for i in range(21):
+        reservation_system.add_reservation(
+            Services.INDIVIDUAL, date(2022, 1, 3),
+            HoursRange(time(9, 30), time(12, 0)))
+
+    with pytest.raises(ReservationTimeTakenError) as e:
+        reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2022, 1, 3),
+            HoursRange(time(10, 0), time(16, 0)), 3)
+
+    proposed_datetime = e.value.proposed_date
+    assert proposed_datetime == datetime(2022, 1, 3, 12, 0)
 
 
 def test_res_system_add_over_lanes_limit():
-    pass
+    reservation_system = ReservationSystemModel(pool_model)
+
+    reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2022, 1, 3),
+            HoursRange(time(10, 0), time(16, 0)), 3)
+
+    with pytest.raises(ReservationTimeTakenError) as e:
+        reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2022, 1, 3),
+            HoursRange(time(14, 30), time(17, 0)), 4)
+
+    proposed_datetime = e.value.proposed_date
+    assert proposed_datetime == datetime(2022, 1, 4, 9, 0)
 
 
 # Tests for ReservationSystemModel.calculate_total_income():

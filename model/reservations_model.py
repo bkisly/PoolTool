@@ -17,9 +17,12 @@ class Reservation:
         self.hours_range = hours_range
         self.price = price
 
-    def is_in_datetime(self, date_time: datetime) -> bool:
+    def is_in_datetime(
+            self, date_time: datetime, include_bounds: bool = True) -> bool:
+
         if (self.date == date_time.date()
-                and self.hours_range.is_in_range(date_time.time())):
+                and self.hours_range.is_in_range(
+                    date_time.time(), include_bounds)):
             return True
 
         return False
@@ -122,7 +125,9 @@ class ReservationSystemModel:
         return lanes
 
     def available_tickets(self, date_time: datetime) -> int:
-        return 5 * len(self.available_lanes(date_time))
+        total_tickets = 5 * len(self.available_lanes(date_time))
+        return total_tickets - self.reservations_amount(
+            Services.INDIVIDUAL, date_time)
 
     def is_lane_taken(self, lane: int, date_time: datetime) -> bool:
         for reservation in self.reservations:
@@ -137,7 +142,7 @@ class ReservationSystemModel:
         amount = 0
 
         for reservation in self.reservations:
-            if reservation.is_in_datetime(date_time):
+            if reservation.is_in_datetime(date_time, False):
                 if reservation.get_service() == service:
                     amount += 1
 
@@ -205,8 +210,9 @@ class ReservationSystemModel:
 
         # 3. Check if the lane isn't greater than the amount of lanes
 
-        if lane is not None and (lane >= self._lanes_amount):
-            raise ValueError("Lane number must be in range of lanes amount.")
+        if lane is not None and (int(lane) >= self._lanes_amount):
+            raise InvalidLaneError(
+                "Lane number must be in range of lanes amount.")
 
         # 4. Check the conditions regarding lanes amount,
         # available tickets etc.
@@ -273,13 +279,17 @@ class ReservationSystemModel:
 
         while not date_found:
             new_begin = proposed_datetime.time()
-            new_end = new_begin + expected_duration
-            new_range = HoursRange(new_begin, new_end)
+
+            dt_end = datetime.combine(date, new_begin)
+            dt_end += expected_duration
+            new_end = dt_end.time()
 
             # Algorithm proceeds until the valid reservation is found
             # and returns fitting combination of date and time
 
             try:
+                new_range = HoursRange(new_begin, new_end)
+
                 self._validate_reservation(
                     proposed_datetime.date(), new_range, service, lane)
             except Exception:

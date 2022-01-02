@@ -120,12 +120,16 @@ class HoursRange:
         self.begin = begin
         self.end = end
 
-    def is_in_range(self, hour: time) -> bool:
+    def is_in_range(self, hour: time, include_bounds: bool = True) -> bool:
         if not isinstance(hour, time):
             raise TypeError("Hour to compare must be time instance.")
 
-        if self.begin <= hour <= self.end:
-            return True
+        if include_bounds:
+            if self.begin <= hour <= self.end:
+                return True
+        else:
+            if self.begin < hour < self.end:
+                return True
 
         return False
 
