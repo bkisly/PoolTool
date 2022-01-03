@@ -51,6 +51,11 @@ class PoolModel:
                     "Working hours JSON must have unique day keys")
 
             hours_range = HoursRange.from_json(working_hours_json[day])
+
+            if hours_range.durtation() < timedelta(hours=1):
+                raise InvalidWorkingHoursError(
+                    "Pool must be open for at least 1 hour.")
+
             working_hours[week_day] = hours_range
 
         return working_hours

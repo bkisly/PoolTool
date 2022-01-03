@@ -201,6 +201,66 @@ def test_pool_model_init_invalid_working_hours():
         PoolModel(pool_json, date.today())
 
 
+def test_pool_model_init_too_short_working_hours():
+    pool_json = {
+        "name": "MyPool",
+        "lanes_amount": 5,
+        "working_hours": {
+            0: {
+                "begin": {
+                    "hour": 9,
+                    "minute": 0
+                },
+                "end": {
+                    "hour": 9,
+                    "minute": 30
+                }
+            },
+        },
+        "price_list": [
+            {
+                "service": 0,
+                "day": 0,
+                "hours_range": {
+                    "begin": {
+                        "hour": 9,
+                        "minute": 0
+                    },
+                    "end": {
+                        "hour": 9,
+                        "minute": 30
+                    }
+                },
+                "price": {
+                    "zl": 2,
+                    "gr": 50
+                }
+            },
+            {
+                "service": 1,
+                "day": 0,
+                "hours_range": {
+                    "begin": {
+                        "hour": 9,
+                        "minute": 0
+                    },
+                    "end": {
+                        "hour": 9,
+                        "minute": 30
+                    }
+                },
+                "price": {
+                    "zl": 2,
+                    "gr": 50
+                }
+            },
+        ]
+    }
+
+    with pytest.raises(InvalidWorkingHoursError):
+        PoolModel(pool_json, date.today())
+
+
 def test_pool_model_init_empty_working_hours():
     pool_json = {
         "name": "MyPool",
@@ -215,7 +275,7 @@ def test_pool_model_init_empty_working_hours():
         PoolModel(pool_json, date.today())
 
 
-def test_pool_model_wrong_day():
+def test_pool_model_init_wrong_day():
     pool_json = {
         "name": "MyPool",
         "lanes_amount": 5,
@@ -321,7 +381,7 @@ def test_pool_model_wrong_day():
         PoolModel(pool_json, 25)
 
 
-def test_pool_model_invalid_lanes_amount():
+def test_pool_model_init_invalid_lanes_amount():
     pool_json = {
         "name": "MyPool",
         "lanes_amount": 1,
