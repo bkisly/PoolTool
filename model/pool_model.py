@@ -19,6 +19,14 @@ class PoolModel:
         self.working_hours = self._create_working_hours_dict(
             initial_json_data["working_hours"])
         self.lanes_amount = initial_json_data["lanes_amount"]
+
+        if not str(self.lanes_amount).isdigit():
+            raise TypeError(
+                "Lanes amount must be an integer, positive number.")
+
+        if self.lanes_amount < 3:
+            raise ValueError("Lanes amount must be at least 3.")
+
         self.price_list_model = PriceListModel(
             self.working_hours, initial_json_data["price_list"])
         self.reservation_system_model = ReservationSystemModel(self)
