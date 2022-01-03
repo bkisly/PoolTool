@@ -133,6 +133,13 @@ class ReservationSystemModel:
             Services.INDIVIDUAL, date_time)
 
     def is_lane_taken(self, lane: int, date_time: datetime) -> bool:
+        if date_time.date() < self._current_day:
+            raise ValueError("Given day cannot be earlier than current day.")
+
+        if lane not in range(self._lanes_amount):
+            raise InvalidLaneError(
+                "Lane number must be between 0 and last lane ID.")
+
         for reservation in self.reservations:
             if isinstance(reservation, SchoolReservation):
                 if (reservation.is_in_datetime(date_time)
@@ -142,11 +149,14 @@ class ReservationSystemModel:
         return False
 
     def reservations_amount(self, service: Services, date_time: datetime):
+        if date_time.date() < self._current_day:
+            raise ValueError("Given day cannot be earlier than current day.")
+
         amount = 0
 
         for reservation in self.reservations:
             if reservation.is_in_datetime(date_time, False):
-                if reservation.get_service() == service:
+                if reservation.get_service() == Services(service):
                     amount += 1
 
         return amount
