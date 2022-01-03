@@ -18,8 +18,8 @@ class PriceListPosition:
 
     @staticmethod
     def from_json(json_dict: dict):
-        service = json_dict["service"]
-        day = json_dict["day"]
+        service = Services(json_dict["service"])
+        day = WeekDay(json_dict["day"])
         hours_range = HoursRange.from_json(json_dict["hours_range"])
         price = Price.from_json(json_dict["price"])
 
@@ -28,8 +28,8 @@ class PriceListPosition:
     @staticmethod
     def to_json(object) -> dict:
         json_dict = {
-            "service": object.service,
-            "day": object.day,
+            "service": object.service.value,
+            "day": object.day.value,
             "hours_range": HoursRange.to_json(object.hours_range),
             "price": Price.to_json(object.price)
         }

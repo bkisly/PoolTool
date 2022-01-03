@@ -59,9 +59,11 @@ class PoolModel:
         json_dict["working_hours"] = working_hours_json
         json_dict["lanes_amount"] = object.lanes_amount
         json_dict["price_list"] = PriceListModel.to_json(
-            object.price_list_model)
+            object.price_list_model.get_pricing())
         json_dict["reservations"] = ReservationSystemModel.to_json(
             object.reservation_system_model.reservations)
+
+        return json_dict
 
     def _create_working_hours_dict(self, working_hours_json: dict) -> dict:
         if not working_hours_json:

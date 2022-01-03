@@ -2,7 +2,7 @@ from model.pool_model import PoolModel
 from model.price_list_model import PriceListModel
 from model.reservations_model import ReservationSystemModel
 from datetime import date, time
-from model.value_types import HoursRange
+from model.value_types import HoursRange, Services
 from exceptions.pool_model_exceptions import InvalidWorkingHoursError
 import pytest
 
@@ -605,3 +605,130 @@ def test_pool_model_next_day():
     pool_model.next_day()
 
     assert pool_model.current_day == date(2022, 1, 2)
+
+
+# Tests for PoolModel.to_json()
+
+def test_pool_model_to_json_correct():
+    pool_json = {
+        "name": "MyPool",
+        "lanes_amount": 5,
+        "working_hours": {
+            0: {
+                "begin": {
+                    "hour": 9,
+                    "minute": 0
+                },
+                "end": {
+                    "hour": 18,
+                    "minute": 0
+                }
+            },
+            1: {
+                "begin": {
+                    "hour": 10,
+                    "minute": 0
+                },
+                "end": {
+                    "hour": 18,
+                    "minute": 30
+                }
+            },
+        },
+        "price_list": [
+            {
+                "service": 0,
+                "day": 0,
+                "hours_range": {
+                    "begin": {
+                        "hour": 9,
+                        "minute": 0
+                    },
+                    "end": {
+                        "hour": 18,
+                        "minute": 0
+                    }
+                },
+                "price": {
+                    "zl": 2,
+                    "gr": 50
+                }
+            },
+            {
+                "service": 1,
+                "day": 0,
+                "hours_range": {
+                    "begin": {
+                        "hour": 9,
+                        "minute": 0
+                    },
+                    "end": {
+                        "hour": 18,
+                        "minute": 0
+                    }
+                },
+                "price": {
+                    "zl": 2,
+                    "gr": 50
+                }
+            },
+            {
+                "service": 0,
+                "day": 1,
+                "hours_range": {
+                    "begin": {
+                        "hour": 10,
+                        "minute": 0
+                    },
+                    "end": {
+                        "hour": 18,
+                        "minute": 30
+                    }
+                },
+                "price": {
+                    "zl": 2,
+                    "gr": 50
+                }
+            },
+            {
+                "service": 1,
+                "day": 1,
+                "hours_range": {
+                    "begin": {
+                        "hour": 10,
+                        "minute": 0
+                    },
+                    "end": {
+                        "hour": 18,
+                        "minute": 30
+                    }
+                },
+                "price": {
+                    "zl": 2,
+                    "gr": 50
+                }
+            },
+        ]
+    }
+
+    pool_model = PoolModel(pool_json, date(2022, 1, 1))
+    reservation_system = pool_model.reservation_system_model
+
+    reservation_system.add_reservation(
+        Services.INDIVIDUAL, date(2022, 1, 3),
+        HoursRange(time(9, 30), time(12, 0)))
+
+    reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2022, 1, 3),
+            HoursRange(time(10, 0), time(16, 0)), 3)
+
+    expected_json = pool_json
+    expected_json["reservations"] = ReservationSystemModel.to_json(
+        reservation_system.reservations)
+
+    assert PoolModel.to_json(pool_model) == expected_json
+
+
+def test_pool_model_to_json_wrong_object():
+    with pytest.raises(AttributeError):
+        PoolModel.to_json(25)
