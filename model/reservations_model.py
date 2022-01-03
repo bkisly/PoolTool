@@ -32,19 +32,30 @@ class Reservation:
 
     @staticmethod
     def from_json(json_dict: dict):
-        date = json_dict["date"]
+        date_dict = json_dict["date"]
+        day = date_dict["day"]
+        month = date_dict["month"]
+        year = date_dict["year"]
+
+        imported_date = date(year, month, day)
         hours_range = HoursRange.from_json(json_dict["hours_range"])
         price = Price.from_json(json_dict["price"])
 
-        return Reservation(date, hours_range, price)
+        return Reservation(imported_date, hours_range, price)
 
     @staticmethod
     def to_json(object) -> dict:
         json_dict = {}
+        date_dict = {}
 
-        json_dict["date"] = object.date
+        date_dict["day"] = object.date.day
+        date_dict["month"] = object.date.month
+        date_dict["year"] = object.date.year
+
+        json_dict["date"] = date_dict
         json_dict["hours_range"] = HoursRange.to_json(object.hours_range)
         json_dict["price"] = Price.to_json(object.price)
+        json_dict["service"] = Services.INDIVIDUAL.value
 
         return json_dict
 
@@ -80,7 +91,7 @@ class SchoolReservation(Reservation):
 
     @staticmethod
     def from_json(json_dict: dict):
-        base = super().from_json(json_dict)
+        base = Reservation.from_json(json_dict)
         lane = json_dict["lane"]
 
         return SchoolReservation(lane, base.date, base.hours_range, base.price)
@@ -88,12 +99,13 @@ class SchoolReservation(Reservation):
     @staticmethod
     def to_json(object) -> dict:
         json_dict = {}
-        base_dict = super().to_json(object)
+        base_dict = Reservation.to_json(object)
 
         json_dict["lane"] = object.lane
         json_dict["date"] = base_dict["date"]
         json_dict["hours_range"] = base_dict["hours_range"]
         json_dict["price"] = base_dict["price"]
+        json_dict["service"] = Services.SWIMMING_SCHOOL.value
 
         return json_dict
 
