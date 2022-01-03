@@ -114,6 +114,9 @@ class ReservationSystemModel:
         return total_income
 
     def available_lanes(self, date_time: datetime) -> list:
+        if date_time.date() < self._current_day:
+            raise ValueError("Given day cannot be earlier than current day.")
+
         lanes = list(range(self._lanes_amount))
 
         for reservation in self.reservations:
