@@ -112,9 +112,10 @@ class SchoolReservation(Reservation):
 
 class ReservationSystemModel:
     def __init__(
-            self, pool_model) -> None:
+            self, pool_model, reservations_json: list = None) -> None:
 
-        self.reservations = []
+        self.reservations = self._create_reservations_list_from_json(
+            reservations_json)
         self._price_list = pool_model.price_list_model.get_pricing()
         self._current_day = pool_model.current_day
         self._lanes_amount = pool_model.lanes_amount
@@ -209,6 +210,18 @@ class ReservationSystemModel:
                     amount += 1
 
         return amount
+
+    @staticmethod
+    def to_json(reservations_list: list):
+        json_list = []
+
+        for reservation in reservations_list:
+            if isinstance(reservation, SchoolReservation):
+                json_list.append(SchoolReservation.to_json(reservation))
+            elif isinstance(reservation, Reservation):
+                json_list.append(Reservation.to_json(reservation))
+
+        return json_list
 
     def _calculate_reservation_price(
             self, date: date, hours_range: HoursRange,
@@ -361,3 +374,16 @@ class ReservationSystemModel:
             date_found = True
 
         return proposed_datetime
+
+    def _create_reservations_list_from_json(self, reservations_json: list):
+        reservations = []
+
+        if reservations_json is not None:
+            for reservation in reservations_json:
+                if reservation["service"] == 0:
+                    reservations.append(Reservation.from_json(reservation))
+                else:
+                    reservations.append(
+                        SchoolReservation.from_json(reservation))
+
+        return reservations
