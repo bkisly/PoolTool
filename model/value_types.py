@@ -1,7 +1,7 @@
 from enum import Enum
 from exceptions.value_types_exceptions import HoursRangeError
 from exceptions.value_types_exceptions import NegativePriceError
-from datetime import time
+from datetime import time, timedelta
 
 
 class Services(Enum):
@@ -26,14 +26,14 @@ class Price:
         self.gr = gr
 
     def __add__(self, other):
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
         result_total_gr = self_total_gr + other_total_gr
         return Price(result_total_gr // 100, result_total_gr % 100)
 
     def __sub__(self, other):
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
         result_total_gr = self_total_gr - other_total_gr
 
         if result_total_gr < 0:
@@ -49,8 +49,8 @@ class Price:
             return False
 
     def __lt__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr < other_total_gr:
             return True
@@ -58,8 +58,8 @@ class Price:
             return False
 
     def __gt__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr > other_total_gr:
             return True
@@ -67,8 +67,8 @@ class Price:
             return False
 
     def __le__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr <= other_total_gr:
             return True
@@ -76,8 +76,8 @@ class Price:
             return False
 
     def __ge__(self, other) -> bool:
-        self_total_gr = self._get_total_gr()
-        other_total_gr = self._get_total_gr(other)
+        self_total_gr = self.get_total_gr()
+        other_total_gr = self.get_total_gr(other)
 
         if self_total_gr >= other_total_gr:
             return True
@@ -99,7 +99,7 @@ class Price:
 
         return json_dict
 
-    def _get_total_gr(self, price=None):
+    def get_total_gr(self, price=None):
         if price is None:
             price = self
 
@@ -120,12 +120,16 @@ class HoursRange:
         self.begin = begin
         self.end = end
 
-    def is_in_range(self, hour: time) -> bool:
+    def is_in_range(self, hour: time, include_bounds: bool = True) -> bool:
         if not isinstance(hour, time):
             raise TypeError("Hour to compare must be time instance.")
 
-        if self.begin <= hour <= self.end:
-            return True
+        if include_bounds:
+            if self.begin <= hour <= self.end:
+                return True
+        else:
+            if self.begin < hour < self.end:
+                return True
 
         return False
 
@@ -136,6 +140,11 @@ class HoursRange:
             return True
         else:
             return False
+
+    def durtation(self) -> timedelta:
+        hours = self.end.hour - self.begin.hour
+        minutes = self.end.minute - self.begin.minute
+        return timedelta(hours=hours, minutes=minutes)
 
     def __add__(self, other):
         if not (self.begin == other.end or self.end == other.begin):
