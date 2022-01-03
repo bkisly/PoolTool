@@ -102,3 +102,5 @@ def test_school_reservation_init_wrong_lane_type():
         SchoolReservation(
             "abcd", date(2021, 12, 1),
             HoursRange(time(9, 0), time(10, 30)), Price(2, 40))
+
+# @TODO: write tests for JSON parsers

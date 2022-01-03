@@ -30,6 +30,24 @@ class Reservation:
     def get_service(self) -> Services:
         return Services.INDIVIDUAL
 
+    @staticmethod
+    def from_json(json_dict: dict):
+        date = json_dict["date"]
+        hours_range = HoursRange.from_json(json_dict["hours_range"])
+        price = Price.from_json(json_dict["price"])
+
+        return Reservation(date, hours_range, price)
+
+    @staticmethod
+    def to_json(object) -> dict:
+        json_dict = {}
+
+        json_dict["date"] = object.date
+        json_dict["hours_range"] = HoursRange.to_json(object.hours_range)
+        json_dict["price"] = Price.to_json(object.price)
+
+        return json_dict
+
     def _data_validation(self, day, hours_range, price):
         if not isinstance(day, date):
             raise TypeError("Date must be an instance of Date class.")
@@ -59,6 +77,25 @@ class SchoolReservation(Reservation):
 
     def get_service(self) -> Services:
         return Services.SWIMMING_SCHOOL
+
+    @staticmethod
+    def from_json(json_dict: dict):
+        base = super().from_json(json_dict)
+        lane = json_dict["lane"]
+
+        return SchoolReservation(lane, base.date, base.hours_range, base.price)
+
+    @staticmethod
+    def to_json(object) -> dict:
+        json_dict = {}
+        base_dict = super().to_json(object)
+
+        json_dict["lane"] = object.lane
+        json_dict["date"] = base_dict["date"]
+        json_dict["hours_range"] = base_dict["hours_range"]
+        json_dict["price"] = base_dict["price"]
+
+        return json_dict
 
 
 class ReservationSystemModel:
