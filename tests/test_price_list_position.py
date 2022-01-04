@@ -67,8 +67,77 @@ def test_price_list_pos_wrong_type():
 
 # Tests for PriceListPosition.from_json()
 
-# @TODO:
+def test_price_list_pos_from_json_correct():
+    price = Price(5, 60)
+    hours_range = HoursRange(time(7, 30), time(10, 0))
+
+    pos_json = {
+        "service": 0,
+        "day": 1,
+        "hours_range": HoursRange.to_json(hours_range),
+        "price": Price.to_json(price)
+    }
+
+    price_list_pos = PriceListPosition.from_json(pos_json)
+
+    assert price_list_pos.service == Services.INDIVIDUAL
+    assert price_list_pos.day == WeekDay.TUESDAY
+    assert price_list_pos.hours_range == hours_range
+    assert price_list_pos.price == price
+
+
+def test_price_list_pos_from_json_malformed():
+    price = Price(5, 60)
+
+    pos_json = {
+        "serviceee": 0,
+        "daay": 1,
+        "price": Price.to_json(price)
+    }
+
+    with pytest.raises(KeyError):
+        PriceListPosition.from_json(pos_json)
+
+
+def test_price_list_pos_from_json_wrong_values():
+    price = Price(5, 60)
+    hours_range = HoursRange(time(7, 30), time(10, 0))
+
+    pos_json = {
+        "service": 9,
+        "day": 1,
+        "hours_range": HoursRange.to_json(hours_range),
+        "price": Price.to_json(price)
+    }
+
+    with pytest.raises(ValueError):
+        PriceListPosition.from_json(pos_json)
+
+
+def test_price_list_pos_from_json_wrong_dict():
+    with pytest.raises(TypeError):
+        PriceListPosition.from_json("abcd")
+
 
 # Tests for PriceListPosition.to_json()
 
-# @TODO:
+def test_price_list_pos_to_json_correct():
+    price = Price(5, 60)
+    hours_range = HoursRange(time(7, 30), time(10, 0))
+
+    expected_json = {
+        "service": 0,
+        "day": 1,
+        "hours_range": HoursRange.to_json(hours_range),
+        "price": Price.to_json(price)
+    }
+
+    price_list_pos = PriceListPosition(
+        Services.INDIVIDUAL, WeekDay.TUESDAY, hours_range, price)
+
+    assert PriceListPosition.to_json(price_list_pos) == expected_json
+
+
+def test_price_list_pos_to_json_wrong_object():
+    with pytest.raises(AttributeError):
+        PriceListPosition.to_json("abcd")
