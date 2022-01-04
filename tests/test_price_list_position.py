@@ -63,3 +63,12 @@ def test_price_list_pos_wrong_weekday():
 def test_price_list_pos_wrong_type():
     with pytest.raises(TypeError):
         PriceListPosition(1, 1, "abcd", "efgh")
+
+
+# Tests for PriceListPosition.from_json()
+
+# @TODO:
+
+# Tests for PriceListPosition.to_json()
+
+# @TODO:

@@ -654,3 +654,8 @@ def test_price_list_model_get_wrong_service():
 
     with pytest.raises(ValueError):
         price_list_model.get_pricing(8)
+
+
+# Tests for PriceListModel.to_json()
+
+# @TODO:
