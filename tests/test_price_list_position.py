@@ -65,6 +65,28 @@ def test_price_list_pos_wrong_type():
         PriceListPosition(1, 1, "abcd", "efgh")
 
 
+# Tests for PriceListPosition.__str__()
+
+def test_price_list_pos_str():
+    price_list_pos_1 = PriceListPosition(
+        Services.INDIVIDUAL, WeekDay.SATURDAY,
+        HoursRange(time(9, 30), time(16, 0)), Price(4, 69)
+    )
+
+    expected_str = "Saturday (individual, 9:30 - 16:00): 4.69 zł per hour"
+
+    assert str(price_list_pos_1) == expected_str
+
+    price_list_pos_2 = PriceListPosition(
+        Services.SWIMMING_SCHOOL, WeekDay.MONDAY,
+        HoursRange(time(8, 0), time(11, 30)), Price(5, 75)
+    )
+
+    expected_str = "Monday (swimming school, 8:00 - 11:30): 5.75 zł per hour"
+
+    assert str(price_list_pos_2) == expected_str
+
+
 # Tests for PriceListPosition.from_json()
 
 def test_price_list_pos_from_json_correct():

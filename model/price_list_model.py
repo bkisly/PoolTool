@@ -16,6 +16,19 @@ class PriceListPosition:
         self.hours_range = hours_range
         self.price = price
 
+    def __str__(self) -> str:
+        day_str = self.day.name.capitalize()
+
+        if self.service == Services.INDIVIDUAL:
+            service_str = "individual"
+        else:
+            service_str = "swimming school"
+
+        price_str = str(self.price)
+        hours_str = str(self.hours_range)
+
+        return f"{day_str} ({service_str}, {hours_str}): {price_str} per hour"
+
     @staticmethod
     def from_json(json_dict: dict):
         service = Services(json_dict["service"])
