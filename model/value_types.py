@@ -84,6 +84,9 @@ class Price:
         else:
             return False
 
+    def __str__(self) -> str:
+        return f"{self.zl}.{self.gr:02} zł"
+
     @staticmethod
     def from_json(json_dict: dict):
         zl = json_dict["zl"]
@@ -161,6 +164,11 @@ class HoursRange:
             return True
 
         return False
+
+    def __str__(self) -> str:
+        begin_str = f"{self.begin.hour}:{self.begin.minute:02}"
+        end_str = f"{self.end.hour}:{self.end.minute:02}"
+        return f"{begin_str} - {end_str}"
 
     @staticmethod
     def from_json(json_dict: dict):

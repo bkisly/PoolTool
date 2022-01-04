@@ -76,6 +76,18 @@ def test_school_reservation_get_service():
     assert school_reservation.get_service() == Services.SWIMMING_SCHOOL
 
 
+# Tests for Reservation.__str__()
+
+def test_reservation_str():
+    reservation = Reservation(
+        date(2021, 12, 31), HoursRange(time(9, 0), time(15, 0)), Price(13, 46))
+
+    expected_str_header = "Reservation for 2021-12-31 (9:00 - 15:00)"
+    expected_str_info = "Individual, reservation cost: 13.46 zł"
+
+    assert str(reservation) == f"{expected_str_header}\n{expected_str_info}"
+
+
 # Tests for Reservation.from_json()
 
 def test_reservation_from_json_correct():
@@ -220,7 +232,7 @@ def test_school_reservation_init_wrong_lane_type():
             HoursRange(time(9, 0), time(10, 30)), Price(2, 40))
 
 
-# Tests for Reservation.from_json()
+# Tests for SchoolReservation.from_json()
 
 def test_school_reservation_from_json_correct():
     json_dict = {
@@ -304,7 +316,7 @@ def test_school_reservation_from_json_wrong_dict():
         SchoolReservation.from_json(json_dict)
 
 
-# Tests for Reservation.to_json()
+# Tests for SchoolReservation.to_json()
 
 def test_school_reservation_to_json_correct():
     reservation = SchoolReservation(
@@ -343,3 +355,18 @@ def test_school_reservation_to_json_wrong_object():
 
     with pytest.raises(AttributeError):
         SchoolReservation.to_json(reservation)
+
+
+# Tests for SchoolReservation.__str__()
+
+def test_school_reservation_str():
+    reservation = SchoolReservation(
+        4, date(2021, 12, 31), HoursRange(time(7, 0), time(9, 0)),
+        Price(56, 89))
+
+    expected_header = "Reservation for 2021-12-31 (7:00 - 9:00)"
+    expected_info_1 = "Swimming school, lane number: 4, "
+    expected_info_2 = "reservation cost: 56.89 zł"
+    result = f"{expected_header}\n{expected_info_1}{expected_info_2}"
+
+    assert str(reservation) == result

@@ -152,6 +152,23 @@ def test_hours_range_eq_wrong_type():
         first_range == 2
 
 
+# Tests for HoursRange.__str__()
+
+def test_hours_range_str_typical():
+    hours_range = HoursRange(time(9, 30), time(12, 30))
+    assert str(hours_range) == "9:30 - 12:30"
+
+
+def test_hours_range_str_minutes_0():
+    hours_range = HoursRange(time(9, 0), time(12, 30))
+    assert str(hours_range) == "9:00 - 12:30"
+
+
+def test_hours_range_str_hour_0():
+    hours_range = HoursRange(time(0, 0), time(12, 30))
+    assert str(hours_range) == "0:00 - 12:30"
+
+
 # Tests for HoursRange.from_json()
 
 def test_hours_range_from_json_correct():

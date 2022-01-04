@@ -17,6 +17,17 @@ class Reservation:
         self.hours_range = hours_range
         self.price = price
 
+    def __str__(self) -> str:
+        hours_str = str(self.hours_range)
+        price_str = str(self.price)
+        date_str = str(self.date)
+        service_str = "Individual"
+
+        header = f"Reservation for {date_str} ({hours_str})"
+        info_str = f"{service_str}, reservation cost: {price_str}"
+
+        return f"{header}\n{info_str}"
+
     def is_in_datetime(
             self, date_time: datetime, include_bounds: bool = True) -> bool:
 
@@ -85,6 +96,18 @@ class SchoolReservation(Reservation):
 
         self.lane = lane
         super().__init__(date, hours_range, price)
+
+    def __str__(self) -> str:
+        hours_str = str(self.hours_range)
+        price_str = str(self.price)
+        date_str = str(self.date)
+        service_str = "Swimming school"
+
+        header = f"Reservation for {date_str} ({hours_str})"
+        info_str_1 = f"{service_str}, lane number: {self.lane}, "
+        info_str_2 = f"reservation cost: {price_str}"
+
+        return f"{header}\n{info_str_1}{info_str_2}"
 
     def get_service(self) -> Services:
         return Services.SWIMMING_SCHOOL

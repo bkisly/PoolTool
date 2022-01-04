@@ -200,6 +200,33 @@ def test_price_ge_wrong_type():
         price_1 >= price_2
 
 
+# Tests for Price.__str__()
+
+def test_price_str_typical():
+    price = Price(16, 78)
+    assert str(price) == "16.78 zł"
+
+
+def test_price_str_gr_less_than_10():
+    price = Price(57, 4)
+    assert str(price) == "57.04 zł"
+
+
+def test_price_str_zl_0():
+    price = Price(0, 14)
+    assert str(price) == "0.14 zł"
+
+
+def test_price_str_gr_0():
+    price = Price(32, 0)
+    assert str(price) == "32.00 zł"
+
+
+def test_price_str_0():
+    price = Price(0, 0)
+    assert str(price) == "0.00 zł"
+
+
 # Tests for Price.from_json()
 
 def test_price_from_json_correct():
