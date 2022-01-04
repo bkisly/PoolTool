@@ -84,6 +84,9 @@ class Price:
         else:
             return False
 
+    def __str__(self) -> str:
+        return f"{self.zl}.{self.gr:02} zł"
+
     @staticmethod
     def from_json(json_dict: dict):
         zl = json_dict["zl"]
