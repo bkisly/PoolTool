@@ -150,3 +150,82 @@ def test_hours_range_eq_wrong_type():
 
     with pytest.raises(AttributeError):
         first_range == 2
+
+
+# Tests for HoursRange.from_json()
+
+def test_hours_range_from_json_correct():
+    range_json = {
+        "begin": {
+            "hour": 5,
+            "minute": 30
+        },
+        "end": {
+            "hour": 8,
+            "minute": 0
+        }
+    }
+
+    assert HoursRange.from_json(range_json) == HoursRange(
+        time(5, 30), time(8, 0))
+
+
+def test_hours_range_from_json_malformed():
+    range_json = {
+        "begin": {
+            "hour": 5,
+            "minute": 30
+        },
+        "eeend": {
+            "hour": 8,
+            "minute": 0
+        }
+    }
+
+    with pytest.raises(KeyError):
+        HoursRange.from_json(range_json)
+
+
+def test_hours_range_from_json_wrong_values():
+    range_json = {
+        "begin": {
+            "hour": 5,
+            "minute": 30
+        },
+        "end": {
+            "hour": 6,
+            "minute": 10
+        }
+    }
+
+    with pytest.raises(HoursRangeError):
+        HoursRange.from_json(range_json)
+
+
+def test_hours_range_from_json_wrong_dict():
+    with pytest.raises(TypeError):
+        HoursRange.from_json("sas")
+
+
+# Tests for HoursRange.from_json()
+
+def test_hours_range_to_json_correct():
+    hours_range = HoursRange(time(3, 30), time(5, 0))
+
+    expected_json = {
+        "begin": {
+            "hour": 3,
+            "minute": 30
+        },
+        "end": {
+            "hour": 5,
+            "minute": 0
+        }
+    }
+
+    assert HoursRange.to_json(hours_range) == expected_json
+
+
+def test_hours_range_to_json_wrong_object():
+    with pytest.raises(AttributeError):
+        HoursRange.to_json("uwu")

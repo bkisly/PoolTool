@@ -646,3 +646,73 @@ def test_res_system_reservations_amount_no_reservations():
 
     assert ind_amount == 0
     assert school_amount == 0
+
+
+# Tests for ReservationSystemModel.to_json()
+
+def test_res_system_to_json_correct():
+    reservation_system = ReservationSystemModel(pool_model)
+
+    reservation_system.add_reservation(
+        Services.INDIVIDUAL, date(2022, 1, 3),
+        HoursRange(time(9, 30), time(12, 0)))
+
+    reservation_system.add_reservation(
+            Services.SWIMMING_SCHOOL, date(2022, 1, 3),
+            HoursRange(time(10, 0), time(16, 0)), 3)
+
+    expected_list = [
+        {
+            "service": 0,
+            "date": {
+                "day": 3,
+                "month": 1,
+                "year": 2022
+            },
+            "hours_range": {
+                "begin": {
+                    "hour": 9,
+                    "minute": 30
+                },
+                "end": {
+                    "hour": 12,
+                    "minute": 0
+                },
+            },
+            "price": {
+                "zl": 5,
+                "gr": 75
+            }
+        },
+        {
+            "service": 1,
+            "lane": 3,
+            "date": {
+                "day": 3,
+                "month": 1,
+                "year": 2022
+            },
+            "hours_range": {
+                "begin": {
+                    "hour": 10,
+                    "minute": 0
+                },
+                "end": {
+                    "hour": 16,
+                    "minute": 0
+                },
+            },
+            "price": {
+                "zl": 31,
+                "gr": 80
+            }
+        },
+    ]
+
+    assert ReservationSystemModel.to_json(
+        reservation_system.reservations) == expected_list
+
+
+def test_res_system_to_json_wrong_object():
+    with pytest.raises(TypeError):
+        ReservationSystemModel.to_json(245)

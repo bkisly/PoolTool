@@ -76,6 +76,122 @@ def test_school_reservation_get_service():
     assert school_reservation.get_service() == Services.SWIMMING_SCHOOL
 
 
+# Tests for Reservation.from_json()
+
+def test_reservation_from_json_correct():
+    json_dict = {
+        "service": 0,
+        "date": {
+            "day": 25,
+            "month": 4,
+            "year": 2021
+        },
+        "hours_range": {
+            "begin": {
+                "hour": 7,
+                "minute": 30
+            },
+            "end": {
+                "hour": 9,
+                "minute": 0
+            },
+        },
+        "price": {
+            "zl": 5,
+            "gr": 40
+        }
+    }
+
+    reservation = Reservation.from_json(json_dict)
+
+    assert reservation.get_service() == Services.INDIVIDUAL
+    assert reservation.date == date(2021, 4, 25)
+    assert reservation.hours_range == HoursRange(time(7, 30), time(9, 0))
+    assert reservation.price == Price(5, 40)
+
+
+def test_reservation_from_json_malformed():
+    json_dict = {
+        "service": 0,
+        "asda": 56,
+        "hours_rangeeee": 765,
+    }
+
+    with pytest.raises(KeyError):
+        Reservation.from_json(json_dict)
+
+
+def test_reservation_from_json_wrong_values():
+    json_dict = {
+        "service": "abcde",
+        "date": 25,
+        "hours_range": {
+            "begin": {
+                "hour": 7,
+                "minute": 30
+            },
+            "end": {
+                "hour": 9,
+                "minute": 0
+            },
+        },
+        "price": {
+            "zl": 5,
+            "gr": 40
+        }
+    }
+
+    with pytest.raises(TypeError):
+        Reservation.from_json(json_dict)
+
+
+def test_reservation_from_json_wrong_dict():
+    json_dict = 234
+
+    with pytest.raises(TypeError):
+        Reservation.from_json(json_dict)
+
+
+# Tests for Reservation.to_json()
+
+def test_reservation_to_json_correct():
+    reservation = Reservation(
+        date(2021, 12, 31), HoursRange(time(10, 30), time(15, 30)),
+        Price(7, 80))
+
+    expected_json = {
+        "service": 0,
+        "date": {
+            "day": 31,
+            "month": 12,
+            "year": 2021
+        },
+        "hours_range": {
+            "begin": {
+                "hour": 10,
+                "minute": 30
+            },
+            "end": {
+                "hour": 15,
+                "minute": 30
+            },
+        },
+        "price": {
+            "zl": 7,
+            "gr": 80
+        }
+    }
+
+    assert Reservation.to_json(reservation) == expected_json
+
+
+def test_reservation_to_json_wrong_object():
+    reservation = "sas"
+
+    with pytest.raises(AttributeError):
+        Reservation.to_json(reservation)
+
+
 # Tests for SchoolReservation.__init__()
 
 def test_school_reservation_init_typical():
@@ -102,3 +218,128 @@ def test_school_reservation_init_wrong_lane_type():
         SchoolReservation(
             "abcd", date(2021, 12, 1),
             HoursRange(time(9, 0), time(10, 30)), Price(2, 40))
+
+
+# Tests for Reservation.from_json()
+
+def test_school_reservation_from_json_correct():
+    json_dict = {
+        "service": 1,
+        "lane": 5,
+        "date": {
+            "day": 25,
+            "month": 4,
+            "year": 2021
+        },
+        "hours_range": {
+            "begin": {
+                "hour": 7,
+                "minute": 30
+            },
+            "end": {
+                "hour": 9,
+                "minute": 0
+            },
+        },
+        "price": {
+            "zl": 5,
+            "gr": 40
+        }
+    }
+
+    reservation = SchoolReservation.from_json(json_dict)
+
+    assert reservation.get_service() == Services.SWIMMING_SCHOOL
+    assert reservation.date == date(2021, 4, 25)
+    assert reservation.hours_range == HoursRange(time(7, 30), time(9, 0))
+    assert reservation.price == Price(5, 40)
+    assert reservation.lane == 5
+
+
+def test_school_reservation_from_json_malformed():
+    json_dict = {
+        "service": 0,
+        "lanes": 15,
+        "asda": 56,
+        "hours_rangeeee": 765,
+    }
+
+    with pytest.raises(KeyError):
+        SchoolReservation.from_json(json_dict)
+
+
+def test_school_reservation_from_json_wrong_values():
+    json_dict = {
+        "service": "abcde",
+        "lane": -18,
+        "date": {
+            "day": 25,
+            "month": 4,
+            "year": 2021
+        },
+        "hours_range": {
+            "begin": {
+                "hour": 7,
+                "minute": 30
+            },
+            "end": {
+                "hour": 9,
+                "minute": 0
+            },
+        },
+        "price": {
+            "zl": 5,
+            "gr": 40
+        }
+    }
+
+    with pytest.raises(InvalidLaneError):
+        SchoolReservation.from_json(json_dict)
+
+
+def test_school_reservation_from_json_wrong_dict():
+    json_dict = "abcd"
+
+    with pytest.raises(TypeError):
+        SchoolReservation.from_json(json_dict)
+
+
+# Tests for Reservation.to_json()
+
+def test_school_reservation_to_json_correct():
+    reservation = SchoolReservation(
+        4, date(2021, 12, 31), HoursRange(time(10, 30), time(15, 30)),
+        Price(7, 80))
+
+    expected_json = {
+        "service": 1,
+        "lane": 4,
+        "date": {
+            "day": 31,
+            "month": 12,
+            "year": 2021
+        },
+        "hours_range": {
+            "begin": {
+                "hour": 10,
+                "minute": 30
+            },
+            "end": {
+                "hour": 15,
+                "minute": 30
+            },
+        },
+        "price": {
+            "zl": 7,
+            "gr": 80
+        }
+    }
+
+    assert SchoolReservation.to_json(reservation) == expected_json
+
+
+def test_school_reservation_to_json_wrong_object():
+    reservation = 568
+
+    with pytest.raises(AttributeError):
+        SchoolReservation.to_json(reservation)

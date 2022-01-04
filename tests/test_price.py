@@ -198,3 +198,57 @@ def test_price_ge_wrong_type():
 
     with pytest.raises(AttributeError):
         price_1 >= price_2
+
+
+# Tests for Price.from_json()
+
+def test_price_from_json_correct():
+    price_json = {
+        "zl": 12,
+        "gr": 45
+    }
+
+    assert Price.from_json(price_json) == Price(12, 45)
+
+
+def test_price_from_json_malformed():
+    price_json = {
+        "zl": 12,
+        "grrrr": 45
+    }
+
+    with pytest.raises(KeyError):
+        Price.from_json(price_json)
+
+
+def test_price_from_json_wrong_values():
+    price_json = {
+        "zl": 12,
+        "gr": -45
+    }
+
+    with pytest.raises(NegativePriceError):
+        Price.from_json(price_json)
+
+
+def test_price_from_json_wrong_dict():
+    with pytest.raises(TypeError):
+        Price.from_json(24)
+
+
+# Tests for Price.to_json()
+
+def test_price_to_json_correct():
+    price = Price(2, 56)
+
+    expected_json = {
+        "zl": 2,
+        "gr": 56
+    }
+
+    assert Price.to_json(price) == expected_json
+
+
+def test_price_to_json_wrong_object():
+    with pytest.raises(AttributeError):
+        Price.to_json(25)

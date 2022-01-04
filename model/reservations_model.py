@@ -30,6 +30,35 @@ class Reservation:
     def get_service(self) -> Services:
         return Services.INDIVIDUAL
 
+    @staticmethod
+    def from_json(json_dict: dict):
+        date_dict = json_dict["date"]
+        day = date_dict["day"]
+        month = date_dict["month"]
+        year = date_dict["year"]
+
+        imported_date = date(year, month, day)
+        hours_range = HoursRange.from_json(json_dict["hours_range"])
+        price = Price.from_json(json_dict["price"])
+
+        return Reservation(imported_date, hours_range, price)
+
+    @staticmethod
+    def to_json(object) -> dict:
+        json_dict = {}
+        date_dict = {}
+
+        date_dict["day"] = object.date.day
+        date_dict["month"] = object.date.month
+        date_dict["year"] = object.date.year
+
+        json_dict["date"] = date_dict
+        json_dict["hours_range"] = HoursRange.to_json(object.hours_range)
+        json_dict["price"] = Price.to_json(object.price)
+        json_dict["service"] = Services.INDIVIDUAL.value
+
+        return json_dict
+
     def _data_validation(self, day, hours_range, price):
         if not isinstance(day, date):
             raise TypeError("Date must be an instance of Date class.")
@@ -60,12 +89,33 @@ class SchoolReservation(Reservation):
     def get_service(self) -> Services:
         return Services.SWIMMING_SCHOOL
 
+    @staticmethod
+    def from_json(json_dict: dict):
+        base = Reservation.from_json(json_dict)
+        lane = json_dict["lane"]
+
+        return SchoolReservation(lane, base.date, base.hours_range, base.price)
+
+    @staticmethod
+    def to_json(object) -> dict:
+        json_dict = {}
+        base_dict = Reservation.to_json(object)
+
+        json_dict["lane"] = object.lane
+        json_dict["date"] = base_dict["date"]
+        json_dict["hours_range"] = base_dict["hours_range"]
+        json_dict["price"] = base_dict["price"]
+        json_dict["service"] = Services.SWIMMING_SCHOOL.value
+
+        return json_dict
+
 
 class ReservationSystemModel:
     def __init__(
-            self, pool_model) -> None:
+            self, pool_model, reservations_json: list = None) -> None:
 
-        self.reservations = []
+        self.reservations = self._create_reservations_list_from_json(
+            reservations_json)
         self._price_list = pool_model.price_list_model.get_pricing()
         self._current_day = pool_model.current_day
         self._lanes_amount = pool_model.lanes_amount
@@ -160,6 +210,18 @@ class ReservationSystemModel:
                     amount += 1
 
         return amount
+
+    @staticmethod
+    def to_json(reservations_list: list):
+        json_list = []
+
+        for reservation in reservations_list:
+            if isinstance(reservation, SchoolReservation):
+                json_list.append(SchoolReservation.to_json(reservation))
+            elif isinstance(reservation, Reservation):
+                json_list.append(Reservation.to_json(reservation))
+
+        return json_list
 
     def _calculate_reservation_price(
             self, date: date, hours_range: HoursRange,
@@ -312,3 +374,16 @@ class ReservationSystemModel:
             date_found = True
 
         return proposed_datetime
+
+    def _create_reservations_list_from_json(self, reservations_json: list):
+        reservations = []
+
+        if reservations_json is not None:
+            for reservation in reservations_json:
+                if reservation["service"] == 0:
+                    reservations.append(Reservation.from_json(reservation))
+                else:
+                    reservations.append(
+                        SchoolReservation.from_json(reservation))
+
+        return reservations
