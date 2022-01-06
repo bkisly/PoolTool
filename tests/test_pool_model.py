@@ -112,8 +112,8 @@ def test_pool_model_init_typical():
     }
 
     working_hours = {
-        0: HoursRange(time(9, 0), time(18, 0)),
-        1: HoursRange(time(10, 0), time(18, 30))
+        "0": HoursRange(time(9, 0), time(18, 0)),
+        "1": HoursRange(time(10, 0), time(18, 30))
     }
 
     pool_model = PoolModel(pool_json, date.today())
@@ -136,7 +136,7 @@ def test_pool_model_init_invalid_working_hours():
         "name": "MyPool",
         "lanes_amount": 5,
         "working_hours": {
-            0: {
+            "0": {
                 "begin": {
                     "hour": 9,
                     "minute": 0
@@ -146,7 +146,7 @@ def test_pool_model_init_invalid_working_hours():
                     "minute": 0
                 }
             },
-            8: {
+            "8": {
                 "begin": {
                     "hour": 10,
                     "minute": 0
@@ -206,7 +206,7 @@ def test_pool_model_init_too_short_working_hours():
         "name": "MyPool",
         "lanes_amount": 5,
         "working_hours": {
-            0: {
+            "0": {
                 "begin": {
                     "hour": 9,
                     "minute": 0
@@ -280,7 +280,7 @@ def test_pool_model_init_wrong_day():
         "name": "MyPool",
         "lanes_amount": 5,
         "working_hours": {
-            0: {
+            "0": {
                 "begin": {
                     "hour": 9,
                     "minute": 0
@@ -290,7 +290,7 @@ def test_pool_model_init_wrong_day():
                     "minute": 0
                 }
             },
-            1: {
+            "1": {
                 "begin": {
                     "hour": 10,
                     "minute": 0
@@ -386,7 +386,7 @@ def test_pool_model_init_invalid_lanes_amount():
         "name": "MyPool",
         "lanes_amount": 1,
         "working_hours": {
-            0: {
+            "0": {
                 "begin": {
                     "hour": 9,
                     "minute": 0
@@ -396,7 +396,7 @@ def test_pool_model_init_invalid_lanes_amount():
                     "minute": 0
                 }
             },
-            1: {
+            "1": {
                 "begin": {
                     "hour": 10,
                     "minute": 0
@@ -504,7 +504,7 @@ def test_pool_model_next_day():
         "name": "MyPool",
         "lanes_amount": 5,
         "working_hours": {
-            0: {
+            "0": {
                 "begin": {
                     "hour": 9,
                     "minute": 0
@@ -514,7 +514,7 @@ def test_pool_model_next_day():
                     "minute": 0
                 }
             },
-            1: {
+            "1": {
                 "begin": {
                     "hour": 10,
                     "minute": 0
@@ -614,7 +614,7 @@ def test_pool_model_to_json_correct():
         "name": "MyPool",
         "lanes_amount": 5,
         "working_hours": {
-            0: {
+            "0": {
                 "begin": {
                     "hour": 9,
                     "minute": 0
@@ -624,7 +624,7 @@ def test_pool_model_to_json_correct():
                     "minute": 0
                 }
             },
-            1: {
+            "1": {
                 "begin": {
                     "hour": 10,
                     "minute": 0
