@@ -13,3 +13,25 @@ class Admin:
 
     def next_day(self):
         self.current_day += timedelta(days=1)
+
+    @staticmethod
+    def to_json(object) -> dict:
+        date = object.current_day
+        date_dict = {
+            "day": date.day,
+            "month": date.month,
+            "year": date.year
+        }
+
+        json_dict = {"current_day": date_dict}
+        return json_dict
+
+    @staticmethod
+    def from_json(json_dict: dict):
+        date_dict = json_dict["current_day"]
+        day = date_dict["day"]
+        month = date_dict["month"]
+        year = date_dict["year"]
+
+        current_day = date(year, month, day)
+        return Admin(current_day)
