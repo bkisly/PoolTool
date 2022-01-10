@@ -53,7 +53,7 @@ class PoolModel:
         working_hours_json = {}
 
         for day in object.working_hours:
-            working_hours_json[day.value] = HoursRange.to_json(
+            working_hours_json[str(day.value)] = HoursRange.to_json(
                 object.working_hours[day])
 
         json_dict["working_hours"] = working_hours_json
@@ -72,7 +72,7 @@ class PoolModel:
         working_hours = {}
 
         for day in working_hours_json:
-            week_day = WeekDay(day)
+            week_day = WeekDay(int(day))
 
             if week_day in working_hours:
                 raise InvalidWorkingHoursError(
