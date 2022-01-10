@@ -2,6 +2,8 @@ from datetime import date
 from model.pool_model import PoolModel
 from config.admin import Admin
 import json
+import os
+import re
 
 
 def write_pool_model(handle, pool_model) -> None:
@@ -24,12 +26,19 @@ def read_config(handle) -> Admin:
 
 
 def does_config_exist(current_directory: str) -> bool:
-    # Check if there's a config.json file in the current directory.
-    # Raise an exception if the given directory is not valid
-    pass
+    if current_directory[-1] != "\\" or current_directory[-1] != "/":
+        current_directory += "/"
+
+    return os.path.isfile(current_directory + "config.json")
 
 
 def get_pools_files(current_directory: str) -> list:
-    # Returns a list of .json files in the current directory with name
-    # starting with "pool_"
-    pass
+    valid_json_files = []
+    all_files = os.listdir(current_directory)
+
+    for file in all_files:
+        if ((re.fullmatch("pool_[0-9]{4}\.json", file) is not None)
+                and os.path.isfile(current_directory + file)):
+            valid_json_files.append(file)
+
+    return valid_json_files
