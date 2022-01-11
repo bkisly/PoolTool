@@ -12,8 +12,14 @@ def main(args: list[str]):
         help="enter the admin mode, manage settings common for all pools")
 
     parsed_args = parser.parse_args(args[1:])
+    args_dict = vars(parsed_args)
 
-    print(parsed_args)
+    if args_dict["admin"]:
+        # Admin mode:
+        print("Admin mode")
+    else:
+        # Pool mode:
+        print("Pool mode with file: " + args_dict["pool"])
 
 
 if __name__ == "__main__":
