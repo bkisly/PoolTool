@@ -1,5 +1,6 @@
 import sys
 import argparse
+import view.admin_view
 
 
 def main(args: list[str]):
@@ -16,7 +17,7 @@ def main(args: list[str]):
 
     if args_dict["admin"]:
         # Admin mode:
-        print("Admin mode")
+        view.admin_view.admin_view()
     else:
         # Pool mode:
         print("Pool mode with file: " + args_dict["pool"])
