@@ -17,10 +17,8 @@ def main(args: list[str]):
     args_dict = vars(parsed_args)
 
     if args_dict["admin"]:
-        # Admin mode:
         view.admin_view.admin_view()
     else:
-        # Pool mode:
         view.pool_view.pool_view(args_dict["pool"])
 
 
