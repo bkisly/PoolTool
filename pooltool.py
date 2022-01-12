@@ -1,6 +1,7 @@
 import sys
 import argparse
 import view.admin_view
+import view.pool_view
 
 
 def main(args: list[str]):
@@ -20,7 +21,7 @@ def main(args: list[str]):
         view.admin_view.admin_view()
     else:
         # Pool mode:
-        print("Pool mode with file: " + args_dict["pool"])
+        view.pool_view.pool_view(args_dict["pool"])
 
 
 if __name__ == "__main__":
