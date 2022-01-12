@@ -4,6 +4,8 @@ from config.io_manager import (
 from config.admin import Admin
 from model.pool_model import PoolModel
 from view.operations_view import print_operations
+from datetime import date, time
+from model.value_types import Services, HoursRange
 
 
 def _config_initialization() -> Admin:
@@ -42,12 +44,96 @@ def _pool_initialization(pool_path: str) -> PoolModel:
     return pool_model
 
 
-def _add_reservation(pool_model: PoolModel):
-    pass
+def _save_pool_model(pool_model: PoolModel, pool_path: str) -> None:
+    with open(pool_path) as f:
+        file_name = f.name
+
+    with open(file_name, "w") as handle:
+        write_pool_model(handle, pool_model)
+
+
+def _add_reservation(pool_model: PoolModel, pool_path: str) -> None:
+    print("Adding new reservation...")
+    valid_reservation = False
+    services = [
+        "Individual client",
+        "Swimming school"
+    ]
+
+    while not valid_reservation:
+        print(f"Current day: {pool_model.current_day}")
+        selected_service = print_operations(services, "Select service type:")
+
+        if selected_service == 1:
+            selected_lane = input("Enter lane number: ")
+        else:
+            selected_lane = None
+
+        selected_year = input("Enter reservation year: ")
+        selected_month = input("Enter reservation month: ")
+        selected_day = input("Enter reservation day: ")
+        selected_begin_hour = input("Enter reservation begin hour: ")
+        selected_begin_minute = input("Enter reservation begin minute: ")
+        selected_end_hour = input("Enter reservation end hour: ")
+        selected_end_minute = input("Enter reservation end minute: ")
+
+        try:
+            res_date = date(
+                int(selected_year), int(selected_month), int(selected_day))
+            res_service = Services(int(selected_service))
+            begin_time = time(
+                int(selected_begin_hour), int(selected_begin_minute))
+            end_time = time(int(selected_end_hour), int(selected_end_minute))
+            res_hours_range = HoursRange(begin_time, end_time)
+
+            res_lane = int(
+                selected_lane) - 1 if selected_lane is not None else None
+
+            res_sys_model = pool_model.reservation_system_model
+            reservation = res_sys_model.add_reservation(
+                res_service, res_date, res_hours_range, res_lane)
+
+            _save_pool_model(pool_model, pool_path)
+
+        except Exception as e:
+            print("An error has occurred while adding new reservation.")
+            print(f"{e.args[0]} Try again.")
+            continue
+
+        valid_reservation = True
+
+    print("\nSuccessfully added new reservation:")
+    print(str(reservation) + "\n")
 
 
 def _view_reservations(pool_model: PoolModel):
-    pass
+    actions = [
+        "Reservations for individuals",
+        "Reservations for schools",
+        "All reservations"
+    ]
+
+    selected_index = print_operations(
+        actions, "Select which reservations do you want to get:")
+
+    match selected_index:
+        case 0:
+            res_filter = Services.INDIVIDUAL
+        case 1:
+            res_filter = Services.SWIMMING_SCHOOL
+        case 2:
+            res_filter = None
+
+    res_sys_model = pool_model.reservation_system_model
+
+    reservations = res_sys_model.get_reservations(res_filter)
+    res_amount = len(reservations)
+
+    print(f"Reservations amount: {res_amount}")
+
+    index = 1
+    for reservation in reservations:
+        print(f"{index}. {reservation}\n")
 
 
 def _view_price_list(pool_model: PoolModel):
@@ -95,7 +181,7 @@ def pool_view(pool_path: str) -> None:
 
         match selected_index:
             case 0:
-                _add_reservation(pool_model)
+                _add_reservation(pool_model, pool_path)
             case 1:
                 _view_reservations(pool_model)
             case 2:
