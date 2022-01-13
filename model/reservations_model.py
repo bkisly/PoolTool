@@ -207,7 +207,7 @@ class ReservationSystemModel:
 
         for reservation in self.reservations:
             if isinstance(reservation, SchoolReservation):
-                if (reservation.is_in_datetime(date_time)
+                if (reservation.is_in_datetime(date_time, False)
                         and reservation.lane in lanes):
                     lanes.remove(reservation.lane)
 
@@ -228,7 +228,7 @@ class ReservationSystemModel:
 
         for reservation in self.reservations:
             if isinstance(reservation, SchoolReservation):
-                if (reservation.is_in_datetime(date_time)
+                if (reservation.is_in_datetime(date_time, False)
                         and reservation.lane == lane):
                     return True
 

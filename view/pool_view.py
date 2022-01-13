@@ -57,14 +57,18 @@ def _add_reservation(pool_model: PoolModel, pool_path: str) -> None:
     valid_reservation = False
     services = [
         "Individual client",
-        "Swimming school"
+        "Swimming school",
+        "Cancel"
     ]
 
     while not valid_reservation:
-        print(f"Current day: {pool_model.current_day}")
+        week_day = WeekDay(pool_model.current_day.weekday()).name.capitalize()
+        print(f"Current day: {pool_model.current_day} ({week_day})")
         selected_service = print_operations(services, "Select service type:")
 
-        if selected_service == 1:
+        if selected_service == 2:
+            return
+        elif selected_service == 1:
             selected_lane = input("Enter lane number: ")
         else:
             selected_lane = None
@@ -235,11 +239,12 @@ def _view_free_lanes(pool_model: PoolModel):
 
 def pool_view(pool_path: str) -> None:
     pool_model = _pool_initialization(pool_path)
+    week_day = WeekDay(pool_model.current_day.weekday()).name.capitalize()
     print("POOLTOOL - POOL MANAGEMENT SYSTEM\n")
     print("Welcome to PoolTool!")
     print(
         f"Active pool: {pool_model.name}. "
-        + f"Current day: {pool_model.current_day}\n")
+        + f"Current day: {pool_model.current_day} ({week_day})\n")
 
     actions = [
         "Add reservation",
