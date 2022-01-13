@@ -4,8 +4,8 @@ from config.io_manager import (
 from config.admin import Admin
 from model.pool_model import PoolModel
 from view.operations_view import print_operations
-from datetime import date, time
-from model.value_types import Services, HoursRange
+from datetime import date, datetime, time, timedelta
+from model.value_types import Services, HoursRange, WeekDay
 
 
 def _config_initialization() -> Admin:
@@ -114,7 +114,7 @@ def _view_reservations(pool_model: PoolModel):
     ]
 
     selected_index = print_operations(
-        actions, "Select which reservations do you want to get:")
+        actions, "\nSelect which reservations do you want to get:")
 
     match selected_index:
         case 0:
@@ -129,31 +129,108 @@ def _view_reservations(pool_model: PoolModel):
     reservations = res_sys_model.get_reservations(res_filter)
     res_amount = len(reservations)
 
-    print(f"Reservations amount: {res_amount}")
+    print(f"\nReservations amount: {res_amount}\n")
 
     index = 1
     for reservation in reservations:
         print(f"{index}. {reservation}\n")
+        index += 1
 
 
 def _view_price_list(pool_model: PoolModel):
-    pass
+    actions = [
+        "Price list for individuals",
+        "Price list for swimming schools",
+        "Full price list"
+    ]
+    selected_index = print_operations(
+        actions, "\nSelect which price list do you want to get:")
+
+    match selected_index:
+        case 0:
+            pricing_filter = Services.INDIVIDUAL
+        case 1:
+            pricing_filter = Services.SWIMMING_SCHOOL
+        case 2:
+            pricing_filter = None
+
+    price_list = pool_model.price_list_model.get_pricing(pricing_filter)
+
+    print(f"\n{pool_model.name} price list:")
+    for position in price_list:
+        print(f"{position}")
+    print()
 
 
 def _view_working_hours(pool_model: PoolModel):
-    pass
+    working_hours = pool_model.working_hours
+    print(f"\n{pool_model.name} working hours:")
+
+    for day in working_hours:
+        day_str = day.name.capitalize()
+        print(f"{day_str}: {working_hours[day]}")
+
+    print()
 
 
 def _get_financial_report(pool_model: PoolModel):
-    pass
+    total_income = pool_model.reservation_system_model.calculate_total_income()
+    print(
+        f"\nCurrently, on {pool_model.current_day}"
+        + f" pool's total income is {total_income}\n")
 
 
 def _view_tickets_amount(pool_model: PoolModel):
-    pass
+    current_day = pool_model.current_day
+    current_weekday = WeekDay(current_day.weekday())
+
+    begin_time = pool_model.working_hours[current_weekday].begin
+    end_time = pool_model.working_hours[current_weekday].end
+
+    current_datetime = datetime.combine(current_day, begin_time)
+
+    print("\nAvailable tickets for particular time periods:")
+
+    while current_datetime.time() < end_time:
+        current_begin = current_datetime.time()
+        current_end = (current_datetime + timedelta(minutes=30)).time()
+        current_range = HoursRange(current_begin, current_end)
+        tickets = pool_model.reservation_system_model.available_tickets(
+            current_datetime + timedelta(minutes=15))
+
+        print(f"{current_range}: {tickets} tickets")
+        current_datetime += timedelta(minutes=30)
+
+    print()
 
 
 def _view_free_lanes(pool_model: PoolModel):
-    pass
+    current_day = pool_model.current_day
+    current_weekday = WeekDay(current_day.weekday())
+
+    begin_time = pool_model.working_hours[current_weekday].begin
+    end_time = pool_model.working_hours[current_weekday].end
+
+    current_datetime = datetime.combine(current_day, begin_time)
+
+    print("\nAvailable lanes for particular time periods:")
+
+    while current_datetime.time() < end_time:
+        current_begin = current_datetime.time()
+        current_end = (current_datetime + timedelta(minutes=30)).time()
+        current_range = HoursRange(current_begin, current_end)
+        available_lanes = pool_model.reservation_system_model.available_lanes(
+            current_datetime + timedelta(minutes=15))
+        lanes_str = ""
+
+        for lane in available_lanes[:-1]:
+            lanes_str += f"{lane + 1}, "
+        lanes_str += str(available_lanes[-1] + 1)
+
+        print(f"{current_range}: lanes {lanes_str}")
+        current_datetime += timedelta(minutes=30)
+
+    print()
 
 
 def pool_view(pool_path: str) -> None:

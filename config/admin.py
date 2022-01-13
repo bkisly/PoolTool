@@ -14,6 +14,9 @@ class Admin:
     def next_day(self):
         self.current_day += timedelta(days=1)
 
+    def previous_day(self):
+        self.current_day -= timedelta(days=1)
+
     @staticmethod
     def to_json(object) -> dict:
         date = object.current_day
