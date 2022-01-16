@@ -566,7 +566,7 @@ def test_res_system_lane_taken_typical():
     date_time_3 = datetime(2022, 1, 3, 18, 30)
 
     assert reservation_system.is_lane_taken(3, date_time_1)
-    assert reservation_system.is_lane_taken(3, date_time_2)
+    assert not reservation_system.is_lane_taken(3, date_time_2)
     assert not reservation_system.is_lane_taken(3, date_time_3)
     assert not reservation_system.is_lane_taken(1, date_time_1)
 

@@ -365,7 +365,7 @@ def test_school_reservation_str():
         Price(56, 89))
 
     expected_header = "Reservation for 2021-12-31 (7:00 - 9:00)"
-    expected_info_1 = "Swimming school, lane number: 4, "
+    expected_info_1 = "Swimming school, lane number: 5, "
     expected_info_2 = "reservation cost: 56.89 zł"
     result = f"{expected_header}\n{expected_info_1}{expected_info_2}"
 

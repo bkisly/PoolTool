@@ -54,10 +54,10 @@ def admin_view() -> None:
 
     exit_selected = False
     while not exit_selected:
-        selected_index = print_operations(["Next day", "Exit"])
+        selected_index = print_operations(["Next day", "Previous day", "Exit"])
 
-        if selected_index == 0:
-            admin.next_day()
+        if selected_index != 2:
+            admin.next_day() if selected_index == 0 else admin.previous_day()
 
             with open("config.json", "w") as handle:
                 write_config(handle, admin)

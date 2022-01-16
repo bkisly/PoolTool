@@ -104,7 +104,7 @@ class SchoolReservation(Reservation):
         service_str = "Swimming school"
 
         header = f"Reservation for {date_str} ({hours_str})"
-        info_str_1 = f"{service_str}, lane number: {self.lane}, "
+        info_str_1 = f"{service_str}, lane number: {self.lane + 1}, "
         info_str_2 = f"reservation cost: {price_str}"
 
         return f"{header}\n{info_str_1}{info_str_2}"
@@ -144,9 +144,21 @@ class ReservationSystemModel:
         self._lanes_amount = pool_model.lanes_amount
         self._woring_hours = pool_model.working_hours
 
+    def get_reservations(self, service: Services = None) -> list[Reservation]:
+        if service is None:
+            return self.reservations
+        else:
+            reservations_to_return = []
+
+            for reservation in self.reservations:
+                if reservation.get_service() == service:
+                    reservations_to_return.append(reservation)
+
+            return reservations_to_return
+
     def add_reservation(
             self, service: Services, date: date,
-            hours_range: HoursRange, lane: int = None):
+            hours_range: HoursRange, lane: int = None) -> Reservation:
 
         # If a reservation can't be added due to the availability,
         # propose the closest possible date and time and pass
@@ -176,6 +188,7 @@ class ReservationSystemModel:
             reservation = SchoolReservation(lane, date, hours_range, price)
 
         self.reservations.append(reservation)
+        return reservation
 
     def calculate_total_income(self) -> Price:
         total_income = Price(0, 0)
@@ -194,7 +207,7 @@ class ReservationSystemModel:
 
         for reservation in self.reservations:
             if isinstance(reservation, SchoolReservation):
-                if (reservation.is_in_datetime(date_time)
+                if (reservation.is_in_datetime(date_time, False)
                         and reservation.lane in lanes):
                     lanes.remove(reservation.lane)
 
@@ -215,7 +228,7 @@ class ReservationSystemModel:
 
         for reservation in self.reservations:
             if isinstance(reservation, SchoolReservation):
-                if (reservation.is_in_datetime(date_time)
+                if (reservation.is_in_datetime(date_time, False)
                         and reservation.lane == lane):
                     return True
 

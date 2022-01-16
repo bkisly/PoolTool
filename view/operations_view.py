@@ -1,5 +1,8 @@
-def print_operations(opertaions: list[str]) -> int:
-    print("Choose the operation to perform:")
+def print_operations(opertaions: list[str], header: str = None) -> int:
+    if header is not None:
+        print(header)
+    else:
+        print("Choose the operation to perform:")
 
     index = 1
     for opertaion in opertaions:
