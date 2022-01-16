@@ -5,11 +5,19 @@ from datetime import time, timedelta
 
 
 class Services(Enum):
+    """
+    An enumerable type representing pool's service type.
+    """
+
     INDIVIDUAL = 0
     SWIMMING_SCHOOL = 1
 
 
 class WeekDay(Enum):
+    """
+    An enumerable type representing the day of the week.
+    """
+
     MONDAY = 0
     TUESDAY = 1
     WEDNESDAY = 2
@@ -20,6 +28,12 @@ class WeekDay(Enum):
 
 
 class Price:
+    """
+    A class representing price. Stores information about the amount of zl and
+    gr separately. Provides addition, subtraction, comparison
+    and to-string operations.
+    """
+
     def __init__(self, zl: int, gr: int) -> None:
         self._data_validation(zl, gr)
         self.zl = zl
@@ -89,12 +103,20 @@ class Price:
 
     @staticmethod
     def from_json(json_dict: dict):
+        """
+        Returns a Price object converted from the JSON-formatted dictionary.
+        """
+
         zl = json_dict["zl"]
         gr = json_dict["gr"]
         return Price(zl, gr)
 
     @staticmethod
     def to_json(object) -> dict:
+        """
+        Converts a Price object to a JSON-formatted dictionary and returns it.
+        """
+
         json_dict = {
             "zl": object.zl,
             "gr": object.gr
@@ -102,13 +124,23 @@ class Price:
 
         return json_dict
 
-    def get_total_gr(self, price=None):
+    def get_total_gr(self, price=None) -> int:
+        """
+        Calculates and returns total amount of gr of a Price object.
+        If no object is given, returns self total gr.
+        """
+
         if price is None:
             price = self
 
         return price.zl * 100 + price.gr
 
-    def _data_validation(self, zl, gr):
+    def _data_validation(self, zl: int, gr: int) -> None:
+        """
+        Validates initial data and throws proper exception if given
+        data is invalid.
+        """
+
         if not (str(zl).isdigit() and str(gr).isdigit()):
             if zl < 0 or gr < 0:
                 raise NegativePriceError("Price attributes cannot be negative")
@@ -117,6 +149,11 @@ class Price:
 
 
 class HoursRange:
+    """
+    A class representing range of hours. Stores information about begin time
+    and end time. Provides addition, comparison and to-string operations.
+    """
+
     def __init__(self, begin: time, end: time) -> None:
         self._data_validation(begin, end)
 
@@ -124,6 +161,13 @@ class HoursRange:
         self.end = end
 
     def is_in_range(self, hour: time, include_bounds: bool = True) -> bool:
+        """
+        Returns True, if given time is between begin and end time of the
+        HoursRange object. Include_bounds set to True makes the method return
+        True in case if the given time is equal begin or end time of the
+        HoursRange.
+        """
+
         if not isinstance(hour, time):
             raise TypeError("Hour to compare must be time instance.")
 
@@ -137,6 +181,11 @@ class HoursRange:
         return False
 
     def check_intersection(self, hours_range) -> bool:
+        """
+        Returns True, if the given HoursRange object intersects with the
+        HoursRange from which the method is called.
+        """
+
         if hours_range.begin < self.end and hours_range.end > self.begin:
             return True
         elif hours_range.begin == self.begin and hours_range.end == self.end:
@@ -145,6 +194,11 @@ class HoursRange:
             return False
 
     def durtation(self) -> timedelta:
+        """
+        Returns a timedelta object representing the duration between
+        begin and end time of the HoursRange object.
+        """
+
         hours = self.end.hour - self.begin.hour
         minutes = self.end.minute - self.begin.minute
         return timedelta(hours=hours, minutes=minutes)
@@ -172,6 +226,11 @@ class HoursRange:
 
     @staticmethod
     def from_json(json_dict: dict):
+        """
+        Converts a JSON-formatted dictionary to an HoursRange
+        object and returns it.
+        """
+
         begin_hour = json_dict["begin"]["hour"]
         begin_minute = json_dict["begin"]["minute"]
         end_hour = json_dict["end"]["hour"]
@@ -182,6 +241,11 @@ class HoursRange:
 
     @staticmethod
     def to_json(object) -> dict:
+        """
+        Converts an HoursRange object to a JSON-formatted dictionary
+        and returns it.
+        """
+
         json_dict = {
             "begin": {
                 "hour": object.begin.hour,
@@ -195,7 +259,12 @@ class HoursRange:
 
         return json_dict
 
-    def _data_validation(self, begin, end):
+    def _data_validation(self, begin: time, end: time) -> None:
+        """
+        Validates initial data and throws proper exceptions if the given data
+        is invalid.
+        """
+
         if not (isinstance(begin, time) and isinstance(end, time)):
             raise TypeError("Begin and end hours must be time instances.")
 
