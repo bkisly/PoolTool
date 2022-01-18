@@ -9,6 +9,11 @@ from model.value_types import Services, HoursRange, WeekDay
 
 
 def _config_initialization() -> Admin:
+    """
+    Creates new instance of the Admin class based on the config file and
+    returns it. If config file doesn't exist, shows proper message.
+    """
+
     if does_config_exist(".\\"):
         try:
             with open("config.json") as handle:
@@ -31,6 +36,11 @@ def _config_initialization() -> Admin:
 
 
 def _pool_initialization(pool_path: str) -> PoolModel:
+    """
+    Creates new instance of the PoolModel based on the config file and
+    initial pool file path and returns it.
+    """
+
     admin = _config_initialization()
 
     try:
@@ -45,6 +55,10 @@ def _pool_initialization(pool_path: str) -> PoolModel:
 
 
 def _save_pool_model(pool_model: PoolModel, pool_path: str) -> None:
+    """
+    Saves PoolModel to a JSON file.
+    """
+
     with open(pool_path) as f:
         file_name = f.name
 
@@ -53,6 +67,10 @@ def _save_pool_model(pool_model: PoolModel, pool_path: str) -> None:
 
 
 def _add_reservation(pool_model: PoolModel, pool_path: str) -> None:
+    """
+    Handles user's interaction for adding new reservation.
+    """
+
     print("Adding new reservation...")
     valid_reservation = False
     services = [
@@ -110,7 +128,12 @@ def _add_reservation(pool_model: PoolModel, pool_path: str) -> None:
     print(str(reservation) + "\n")
 
 
-def _view_reservations(pool_model: PoolModel):
+def _view_reservations(pool_model: PoolModel) -> None:
+    """
+    Shows information about reservations which were made for individuals,
+    swimming schools or both depending on the selected action.
+    """
+
     actions = [
         "Reservations for individuals",
         "Reservations for schools",
@@ -141,7 +164,12 @@ def _view_reservations(pool_model: PoolModel):
         index += 1
 
 
-def _view_price_list(pool_model: PoolModel):
+def _view_price_list(pool_model: PoolModel) -> None:
+    """
+    Shows pool's price list for individuals, swimming schools or full price
+    list depending on the selected action.
+    """
+
     actions = [
         "Price list for individuals",
         "Price list for swimming schools",
@@ -166,7 +194,11 @@ def _view_price_list(pool_model: PoolModel):
     print()
 
 
-def _view_working_hours(pool_model: PoolModel):
+def _view_working_hours(pool_model: PoolModel) -> None:
+    """
+    Shows pool's working hours.
+    """
+
     working_hours = pool_model.working_hours
     print(f"\n{pool_model.name} working hours:")
 
@@ -177,14 +209,22 @@ def _view_working_hours(pool_model: PoolModel):
     print()
 
 
-def _get_financial_report(pool_model: PoolModel):
+def _get_financial_report(pool_model: PoolModel) -> None:
+    """
+    Shows information about pool's total income for the current day.
+    """
+
     total_income = pool_model.reservation_system_model.calculate_total_income()
     print(
         f"\nCurrently, on {pool_model.current_day}"
         + f" pool's total income is {total_income}\n")
 
 
-def _view_tickets_amount(pool_model: PoolModel):
+def _view_tickets_amount(pool_model: PoolModel) -> None:
+    """
+    Shows information about available tickets for particular time periods.
+    """
+
     current_day = pool_model.current_day
     current_weekday = WeekDay(current_day.weekday())
 
@@ -208,7 +248,11 @@ def _view_tickets_amount(pool_model: PoolModel):
     print()
 
 
-def _view_free_lanes(pool_model: PoolModel):
+def _view_free_lanes(pool_model: PoolModel) -> None:
+    """
+    Shows information about available lanes for particular time periods.
+    """
+
     current_day = pool_model.current_day
     current_weekday = WeekDay(current_day.weekday())
 
@@ -238,6 +282,11 @@ def _view_free_lanes(pool_model: PoolModel):
 
 
 def pool_view(pool_path: str) -> None:
+    """
+    Start point for the pool mode of the application. Handles selected actions
+    and calls proper methods for particular operations.
+    """
+
     pool_model = _pool_initialization(pool_path)
     week_day = WeekDay(pool_model.current_day.weekday()).name.capitalize()
     print("POOLTOOL - POOL MANAGEMENT SYSTEM\n")
