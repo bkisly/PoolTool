@@ -5,6 +5,11 @@ from view.operations_view import print_operations
 
 
 def _config_validation() -> Admin:
+    """
+    Validates initial config and returns an instance of the Admin class
+    based on the valid config.json file.
+    """
+
     with open("config.json") as handle:
         try:
             admin = read_config(handle)
@@ -17,6 +22,11 @@ def _config_validation() -> Admin:
 
 
 def _config_initialization() -> Admin:
+    """
+    Initializes config, saves it to the config.json file and returns an
+    instance of the Admin class based on the given data.
+    """
+
     print(
         "There's no config file detected, "
         + "preparing for the first launch...")
@@ -43,6 +53,11 @@ def _config_initialization() -> Admin:
 
 
 def admin_view() -> None:
+    """
+    Start point for the admin mode of the application. Handles user's
+    interactions and calls proper functions.
+    """
+
     admin = None
 
     if does_config_exist(".\\"):
