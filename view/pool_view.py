@@ -6,6 +6,7 @@ from model.pool_model import PoolModel
 from view.operations_view import print_operations
 from datetime import date, datetime, time, timedelta
 from model.value_types import Services, HoursRange, WeekDay
+import os
 
 
 def _config_initialization() -> Admin:
@@ -60,7 +61,7 @@ def _save_pool_model(pool_model: PoolModel, pool_path: str) -> None:
     """
 
     with open(pool_path) as f:
-        file_name = f.name
+        file_name = os.path.basename(f.name)
 
     with open(file_name, "w") as handle:
         write_pool_model(handle, pool_model)
