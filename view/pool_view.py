@@ -229,8 +229,13 @@ def _view_tickets_amount(pool_model: PoolModel) -> None:
     current_day = pool_model.current_day
     current_weekday = WeekDay(current_day.weekday())
 
-    begin_time = pool_model.working_hours[current_weekday].begin
-    end_time = pool_model.working_hours[current_weekday].end
+    try:
+        begin_time = pool_model.working_hours[current_weekday].begin
+        end_time = pool_model.working_hours[current_weekday].end
+    except Exception:
+        print("An error has occurred while viewing tickets amount.")
+        print("Today the pool is closed.")
+        return
 
     current_datetime = datetime.combine(current_day, begin_time)
 
@@ -257,8 +262,13 @@ def _view_free_lanes(pool_model: PoolModel) -> None:
     current_day = pool_model.current_day
     current_weekday = WeekDay(current_day.weekday())
 
-    begin_time = pool_model.working_hours[current_weekday].begin
-    end_time = pool_model.working_hours[current_weekday].end
+    try:
+        begin_time = pool_model.working_hours[current_weekday].begin
+        end_time = pool_model.working_hours[current_weekday].end
+    except Exception:
+        print("An error has occurred while viewing free lanes.")
+        print("Today the pool is closed.")
+        return
 
     current_datetime = datetime.combine(current_day, begin_time)
 

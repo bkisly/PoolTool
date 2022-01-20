@@ -418,6 +418,10 @@ class ReservationSystemModel:
         # pool working hours pool working hours
 
         week_day = WeekDay(date.weekday())
+
+        if week_day not in self._woring_hours:
+            raise ValueError("Reservation time must fit working hours.")
+
         available_hours = self._woring_hours[week_day]
         begin = hours_range.begin
         end = hours_range.end
