@@ -1,4 +1,11 @@
 def print_operations(opertaions: list[str], header: str = None) -> int:
+    """
+    Prints the given header and the list of operations possible to
+    select and handles user's interaction. Returns selected list index.
+    If no header is given, prints "Choose the operation to perform:"
+    by default.
+    """
+
     if header is not None:
         print(header)
     else:

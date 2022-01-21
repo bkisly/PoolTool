@@ -1,0 +1,8 @@
+{
+    "name": "Pool name",
+    "lanes_amount": 5,
+
+    "woooorking_hours": {
+        "0": {"begin": {"hour": 8, "minute": 30}, "end": {"hour": 19, "minute": 0}}
+    }
+}

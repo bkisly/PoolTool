@@ -6,6 +6,11 @@ from datetime import date, timedelta, datetime
 
 
 class Reservation:
+    """
+    Represents a single reservation for individual client. Stores information
+    about reservation date, hours range and reservation cost.
+    """
+
     def __init__(
             self, date: date,
             hours_range: HoursRange, price: Price) -> None:
@@ -30,6 +35,12 @@ class Reservation:
 
     def is_in_datetime(
             self, date_time: datetime, include_bounds: bool = True) -> bool:
+        """
+        Returns true, if the reservation hours range and date intersects with
+        the given datetime object. Include_bounds set to True makes the method
+        return True, if the begin or end time is equal the time of the given
+        datetime (while the dates are equal as well).
+        """
 
         if (self.date == date_time.date()
                 and self.hours_range.is_in_range(
@@ -39,10 +50,19 @@ class Reservation:
         return False
 
     def get_service(self) -> Services:
+        """
+        Returns the service type of the reservation.
+        """
+
         return Services.INDIVIDUAL
 
     @staticmethod
     def from_json(json_dict: dict):
+        """
+        Converts a JSON-formatted dictionary to the Reservation object
+        and returns it.
+        """
+
         date_dict = json_dict["date"]
         day = date_dict["day"]
         month = date_dict["month"]
@@ -56,6 +76,11 @@ class Reservation:
 
     @staticmethod
     def to_json(object) -> dict:
+        """
+        Converts a Reservation object to the JSON-formatted dictionary
+        and returns it.
+        """
+
         json_dict = {}
         date_dict = {}
 
@@ -70,7 +95,14 @@ class Reservation:
 
         return json_dict
 
-    def _data_validation(self, day, hours_range, price):
+    def _data_validation(
+        self, day: date, hours_range: HoursRange, price: Price
+    ) -> None:
+        """
+        Validates reservation initial data and throws proper exceptions if the
+        given data is invalid.
+        """
+
         if not isinstance(day, date):
             raise TypeError("Date must be an instance of Date class.")
 
@@ -80,13 +112,23 @@ class Reservation:
         if not isinstance(price, Price):
             raise TypeError("Price must be an instance of Price.")
 
-    def _validate_hours_range(self, hours_range: HoursRange):
+    def _validate_hours_range(self, hours_range: HoursRange) -> None:
+        """
+        Validates the reservation duration and throws an exception, if the
+        reservation is less than 1 hour long.
+        """
+
         if hours_range.durtation() < timedelta(hours=1):
             raise ReservationDurationError(
                 "Reservation must be at least 1 hour long.")
 
 
 class SchoolReservation(Reservation):
+    """
+    Represents a single reservation for swimming school. Stores information
+    about reservation lane number, date, hours range and reservation cost.
+    """
+
     def __init__(
             self, lane: int,
             date: date, hours_range: HoursRange, price: Price) -> None:
@@ -114,6 +156,11 @@ class SchoolReservation(Reservation):
 
     @staticmethod
     def from_json(json_dict: dict):
+        """
+        Converts a JSON-formatted dictionary to the SchoolReservation object
+        and returns it.
+        """
+
         base = Reservation.from_json(json_dict)
         lane = json_dict["lane"]
 
@@ -121,6 +168,11 @@ class SchoolReservation(Reservation):
 
     @staticmethod
     def to_json(object) -> dict:
+        """
+        Converts a SchoolReservation object to the JSON-formatted dictionary
+        and returns it.
+        """
+
         json_dict = {}
         base_dict = Reservation.to_json(object)
 
@@ -134,6 +186,13 @@ class SchoolReservation(Reservation):
 
 
 class ReservationSystemModel:
+    """
+    Represents the reservation system of the pool. Stores the list of
+    all reservations. Provides adding new reservations, calculating total
+    income and more. Must be initialized with given PoolModel and optionally
+    with JSON-formatted reservations list which should be initially added.
+    """
+
     def __init__(
             self, pool_model, reservations_json: list = None) -> None:
 
@@ -145,6 +204,11 @@ class ReservationSystemModel:
         self._woring_hours = pool_model.working_hours
 
     def get_reservations(self, service: Services = None) -> list[Reservation]:
+        """
+        Returns the list of reservations. If the service is given, returns only
+        reservations for individuals of swimming schools.
+        """
+
         if service is None:
             return self.reservations
         else:
@@ -159,6 +223,11 @@ class ReservationSystemModel:
     def add_reservation(
             self, service: Services, date: date,
             hours_range: HoursRange, lane: int = None) -> Reservation:
+        """
+        Adds new reservation and returns it. Adds reservation for individual
+        client if the lane isn't given, otherwise adds reservation for swimming
+        school.
+        """
 
         # If a reservation can't be added due to the availability,
         # propose the closest possible date and time and pass
@@ -191,6 +260,11 @@ class ReservationSystemModel:
         return reservation
 
     def calculate_total_income(self) -> Price:
+        """
+        Returns a Price object representing total income from the reservations
+        of the current day.
+        """
+
         total_income = Price(0, 0)
 
         for reservation in self.reservations:
@@ -199,7 +273,11 @@ class ReservationSystemModel:
 
         return total_income
 
-    def available_lanes(self, date_time: datetime) -> list:
+    def available_lanes(self, date_time: datetime) -> list[int]:
+        """
+        Returns a list of available lane numbers for the given datetime.
+        """
+
         if date_time.date() < self._current_day:
             raise ValueError("Given day cannot be earlier than current day.")
 
@@ -214,11 +292,19 @@ class ReservationSystemModel:
         return lanes
 
     def available_tickets(self, date_time: datetime) -> int:
+        """
+        Returns the amount of available tickets for the given datetime.
+        """
+
         total_tickets = 5 * len(self.available_lanes(date_time))
         return total_tickets - self.reservations_amount(
             Services.INDIVIDUAL, date_time)
 
     def is_lane_taken(self, lane: int, date_time: datetime) -> bool:
+        """
+        Returns true, if the given lane number is taken for the given datetime.
+        """
+
         if date_time.date() < self._current_day:
             raise ValueError("Given day cannot be earlier than current day.")
 
@@ -234,7 +320,14 @@ class ReservationSystemModel:
 
         return False
 
-    def reservations_amount(self, service: Services, date_time: datetime):
+    def reservations_amount(
+        self, service: Services, date_time: datetime
+    ) -> int:
+        """
+        Returns the amount of reservations of the particular type
+        for the given datetime.
+        """
+
         if date_time.date() < self._current_day:
             raise ValueError("Given day cannot be earlier than current day.")
 
@@ -248,7 +341,12 @@ class ReservationSystemModel:
         return amount
 
     @staticmethod
-    def to_json(reservations_list: list):
+    def to_json(reservations_list: list[Reservation]) -> list:
+        """
+        Converts a list of Reservation objects to the JSON-formatted list of
+        reservations and returns it.
+        """
+
         json_list = []
 
         for reservation in reservations_list:
@@ -262,6 +360,10 @@ class ReservationSystemModel:
     def _calculate_reservation_price(
             self, date: date, hours_range: HoursRange,
             service: Services) -> Price:
+        """
+        Calculates the price of the reservation to be added
+        (based on the price list) and returns it.
+        """
 
         # 1. Selecting those PriceListPosition objects, that belong to the
         # particular reservation
@@ -301,7 +403,12 @@ class ReservationSystemModel:
 
     def _validate_reservation(
             self, date: date, hours_range: HoursRange,
-            service: Services, lane: int = None):
+            service: Services, lane: int = None) -> None:
+        """
+        Validates the reservation data and throws proper exceptions in case of
+        any incorrectness.
+        """
+
         # 1. Check if reservation date isn't earlier than the current day
 
         if date < self._current_day:
@@ -311,6 +418,10 @@ class ReservationSystemModel:
         # pool working hours pool working hours
 
         week_day = WeekDay(date.weekday())
+
+        if week_day not in self._woring_hours:
+            raise ValueError("Reservation time must fit working hours.")
+
         available_hours = self._woring_hours[week_day]
         begin = hours_range.begin
         end = hours_range.end
@@ -335,6 +446,10 @@ class ReservationSystemModel:
     def _check_reservation_intersection(
             self, hours_range: HoursRange,
             date: date, service: Services, lane: int) -> bool:
+        """
+        Returns True if the given time for the reservation to be added
+        is available.
+        """
 
         current_time = hours_range.begin
 
@@ -378,6 +493,9 @@ class ReservationSystemModel:
     def _propose_new_date(
             self, date: date, hours_range: HoursRange,
             service: Services, lane: int) -> datetime:
+        """
+        Returns the closest available datetime for the reservation to be added.
+        """
 
         proposed_datetime = datetime(
             date.year, date.month, date.day,
@@ -411,7 +529,14 @@ class ReservationSystemModel:
 
         return proposed_datetime
 
-    def _create_reservations_list_from_json(self, reservations_json: list):
+    def _create_reservations_list_from_json(
+        self, reservations_json: list
+    ) -> list[Reservation]:
+        """
+        Creates and returns a list of reservations based on a list of
+        JSON-formatted Reservation objects.
+        """
+
         reservations = []
 
         if reservations_json is not None:

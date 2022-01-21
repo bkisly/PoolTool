@@ -6,11 +6,13 @@ from exceptions.pool_model_exceptions import InvalidWorkingHoursError
 
 
 class PoolModel:
+    """
+    Main class for the model of the pool. Stores info about pool name,
+    working hours, lanes amount as well as references to the
+    price list and reservation system.
+    """
+
     def __init__(self, initial_json_data: dict, current_day: date) -> None:
-        # 1. Verify and assign pool data in JSON (including price list,
-        # process solved by PriceListModel class) to the attributes.
-        # 2. Create WorkingHours parser from JSON to the dict of
-        # WeekDay -> HoursRange
         if not isinstance(current_day, date):
             raise TypeError("Current day must be an instance of date class")
         self.current_day = current_day
@@ -38,14 +40,16 @@ class PoolModel:
         self.reservation_system_model = ReservationSystemModel(
             self, reservations)
 
-        # Current day is stored in a config file that is managed in the
-        # admin mode
-
     def next_day(self) -> None:
         self.current_day += timedelta(days=1)
 
     @staticmethod
     def to_json(object) -> dict:
+        """
+        Converts a PoolModel object to the JSON-formatted dictionary
+        and returns it.
+        """
+
         json_dict = {}
 
         json_dict["name"] = object.name
@@ -65,7 +69,14 @@ class PoolModel:
 
         return json_dict
 
-    def _create_working_hours_dict(self, working_hours_json: dict) -> dict:
+    def _create_working_hours_dict(
+        self, working_hours_json: dict
+    ) -> dict[WeekDay, HoursRange]:
+        """
+        Initializes working hours dictionary based on a JSON-formatted
+        dictionary and returns it.
+        """
+
         if not working_hours_json:
             raise InvalidWorkingHoursError("Working hours cannot be empty.")
 

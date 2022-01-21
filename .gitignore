@@ -2,3 +2,4 @@
 **/__pycache__/*
 .pytest_cache/*
 *.json
+!example_files/*.json

@@ -1,0 +1,44 @@
+{
+    "name": "MyPool",
+    "lanes_amount": 5,
+    "working_hours": {
+        "0": {"begin": {"hour": 8, "minute": 30}, "end": {"hour": 19, "minute": 0}},
+        "1": {"begin": {"hour": 9, "minute": 0}, "end": {"hour": 19, "minute": 30}},
+        "3": {"begin": {"hour": 10, "minute": 30}, "end": {"hour": 21, "minute": 0}},
+        "4": {"begin": {"hour": 7, "minute": 30}, "end": {"hour": 19, "minute": 30}},
+        "5": {"begin": {"hour": 11, "minute": 0}, "end": {"hour": 16, "minute": 0}}
+    },
+
+    "price_list": [
+        {"service": 0, "day": 0, "price": {"zl": 5, "gr": 30},
+        "hours_range": {"begin": {"hour": 8, "minute": 30}, "end": {"hour": 19, "minute": 0}}},
+
+        {"service": 0, "day": 1, "price": {"zl": 4, "gr": 15},
+        "hours_range": {"begin": {"hour": 9, "minute": 0}, "end": {"hour": 19, "minute": 30}}},
+
+        {"service": 0, "day": 3, "price": {"zl": 3, "gr": 90},
+        "hours_range": {"begin": {"hour": 10, "minute": 30}, "end": {"hour": 21, "minute": 0}}},
+
+        {"service": 0, "day": 4, "price": {"zl": 6, "gr": 30},
+        "hours_range": {"begin": {"hour": 7, "minute": 30}, "end": {"hour": 19, "minute": 30}}},
+
+        {"service": 0, "day": 5, "price": {"zl": 10, "gr": 0},
+        "hours_range": {"begin": {"hour": 11, "minute": 0}, "end": {"hour": 16, "minute": 0}}},
+
+
+        {"service": 1, "day": 0, "price": {"zl": 5, "gr": 30},
+        "hours_range": {"begin": {"hour": 8, "minute": 30}, "end": {"hour": 19, "minute": 0}}},
+
+        {"service": 1, "day": 1, "price": {"zl": 4, "gr": 15},
+        "hours_range": {"begin": {"hour": 9, "minute": 0}, "end": {"hour": 19, "minute": 30}}},
+
+        {"service": 1, "day": 3, "price": {"zl": 3, "gr": 90},
+        "hours_range": {"begin": {"hour": 10, "minute": 30}, "end": {"hour": 21, "minute": 0}}},
+
+        {"service": 1, "day": 4, "price": {"zl": 6, "gr": 30},
+        "hours_range": {"begin": {"hour": 7, "minute": 30}, "end": {"hour": 19, "minute": 30}}},
+
+        {"service": 1, "day": 5, "price": {"zl": 10, "gr": 0},
+        "hours_range": {"begin": {"hour": 11, "minute": 0}, "end": {"hour": 16, "minute": 0}}}
+    ]
+}

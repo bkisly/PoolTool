@@ -4,7 +4,12 @@ import view.admin_view
 import view.pool_view
 
 
-def main(args: list[str]):
+def main(args: list[str]) -> None:
+    """
+    Entry point for the application. Verifies given arguments and calls
+    proper view functions.
+    """
+
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
