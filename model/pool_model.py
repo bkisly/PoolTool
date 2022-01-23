@@ -40,9 +40,6 @@ class PoolModel:
         self.reservation_system_model = ReservationSystemModel(
             self, reservations)
 
-    def next_day(self) -> None:
-        self.current_day += timedelta(days=1)
-
     @staticmethod
     def to_json(object) -> dict:
         """
