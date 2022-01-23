@@ -13,9 +13,6 @@ class Admin:
 
         self.current_day = current_day
 
-    def set_current_pool(self, path: str) -> None:
-        self.current_pool_path = path
-
     def next_day(self) -> None:
         """
         Sets the current day for the next day.
