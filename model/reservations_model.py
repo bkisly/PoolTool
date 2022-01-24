@@ -259,6 +259,16 @@ class ReservationSystemModel:
         self.reservations.append(reservation)
         return reservation
 
+    def remove_reservation(self, reservation_id: int) -> Reservation:
+        """
+        Removes a reservation with the given ID and returns it.
+        """
+
+        if reservation_id not in range(len(self.reservations)):
+            raise ValueError("Given reservation ID is out of range.")
+
+        return self.reservations.pop(reservation_id)
+
     def calculate_total_income(self) -> Price:
         """
         Returns a Price object representing total income from the reservations
