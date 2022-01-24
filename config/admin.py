@@ -13,9 +13,6 @@ class Admin:
 
         self.current_day = current_day
 
-    def set_current_pool(self, path: str) -> None:
-        self.current_pool_path = path
-
     def next_day(self) -> None:
         """
         Sets the current day for the next day.
@@ -29,6 +26,13 @@ class Admin:
         """
 
         self.current_day -= timedelta(days=1)
+
+    def set_current_day(self, new_day: date) -> None:
+        """
+        Sets the current day for a given value.
+        """
+
+        self.current_day = new_day
 
     @staticmethod
     def to_json(object) -> dict:

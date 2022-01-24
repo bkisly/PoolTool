@@ -292,6 +292,29 @@ def _view_free_lanes(pool_model: PoolModel) -> None:
     print()
 
 
+def _remove_reservation(pool_model: PoolModel, pool_path: str) -> None:
+    """
+    Lets the user remove a reservation after typing a reservation ID.
+    """
+
+    reservations = pool_model.reservation_system_model.reservations
+
+    if reservations:
+        selected_index = print_operations(
+            [str(r) for r in reservations],
+            "Select the ID of a reservation to remove."
+        )
+
+        removed_res = pool_model.reservation_system_model.remove_reservation(
+            selected_index
+        )
+
+        print(f"Successfully removed a reservation: {removed_res}\n")
+        _save_pool_model(pool_model, pool_path)
+    else:
+        print("There are no reservations yet.\n")
+
+
 def pool_view(pool_path: str) -> None:
     """
     Start point for the pool mode of the application. Handles selected actions
@@ -308,6 +331,7 @@ def pool_view(pool_path: str) -> None:
 
     actions = [
         "Add reservation",
+        "Remove reservation",
         "View reservations",
         "Price list",
         "Working hours",
@@ -325,16 +349,18 @@ def pool_view(pool_path: str) -> None:
             case 0:
                 _add_reservation(pool_model, pool_path)
             case 1:
-                _view_reservations(pool_model)
+                _remove_reservation(pool_model, pool_path)
             case 2:
-                _view_price_list(pool_model)
+                _view_reservations(pool_model)
             case 3:
-                _view_working_hours(pool_model)
+                _view_price_list(pool_model)
             case 4:
-                _get_financial_report(pool_model)
+                _view_working_hours(pool_model)
             case 5:
-                _view_tickets_amount(pool_model)
+                _get_financial_report(pool_model)
             case 6:
-                _view_free_lanes(pool_model)
+                _view_tickets_amount(pool_model)
             case 7:
+                _view_free_lanes(pool_model)
+            case 8:
                 exit_selected = True
