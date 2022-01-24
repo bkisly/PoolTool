@@ -7,14 +7,14 @@ from exceptions.value_types_exceptions import NegativePriceError
 
 def test_price_init_typical():
     price = Price(2, 47)
-    assert price.zl == 2
-    assert price.gr == 47
+    assert price.zl() == 2
+    assert price.gr() == 47
 
 
 def test_price_init_zero():
     price = Price(0, 0)
-    assert price.zl == 0
-    assert price.gr == 0
+    assert price.zl() == 0
+    assert price.gr() == 0
 
 
 def test_price_init_negative_values():

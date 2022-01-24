@@ -36,8 +36,24 @@ class Price:
 
     def __init__(self, zl: int, gr: int) -> None:
         self._data_validation(zl, gr)
-        self.zl = zl
-        self.gr = gr
+        self._zl = zl
+        self._gr = gr
+
+    # Getters
+
+    def zl(self) -> int:
+        """
+        Returns the amount of zl.
+        """
+        return self._zl
+
+    def gr(self) -> int:
+        """
+        Returns the amount of gr.
+        """
+        return self._gr
+
+    # Operator overloads
 
     def __add__(self, other):
         self_total_gr = self.get_total_gr()
@@ -57,7 +73,7 @@ class Price:
         return Price(result_total_gr // 100, result_total_gr % 100)
 
     def __eq__(self, other) -> bool:
-        if self.gr == other.gr and self.zl == other.zl:
+        if self._gr == other.gr() and self._zl == other.zl():
             return True
         else:
             return False
@@ -99,7 +115,9 @@ class Price:
             return False
 
     def __str__(self) -> str:
-        return f"{self.zl}.{self.gr:02} zł"
+        return f"{self._zl}.{self._gr:02} zł"
+
+    # Static methods
 
     @staticmethod
     def from_json(json_dict: dict):
@@ -118,11 +136,13 @@ class Price:
         """
 
         json_dict = {
-            "zl": object.zl,
-            "gr": object.gr
+            "zl": object.zl(),
+            "gr": object.gr()
         }
 
         return json_dict
+
+    # Methods
 
     def get_total_gr(self, price=None) -> int:
         """
@@ -133,7 +153,7 @@ class Price:
         if price is None:
             price = self
 
-        return price.zl * 100 + price.gr
+        return price.zl() * 100 + price.gr()
 
     def _data_validation(self, zl: int, gr: int) -> None:
         """

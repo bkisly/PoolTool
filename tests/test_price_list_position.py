@@ -28,8 +28,8 @@ def test_price_list_pos_typical():
     assert position.day == WeekDay.FRIDAY
     assert position.hours_range.begin == begin
     assert position.hours_range.end == end
-    assert position.price.zl == 2
-    assert position.price.gr == 40
+    assert position.price.zl() == 2
+    assert position.price.gr() == 40
 
 
 def test_price_list_pos_wrong_service():
