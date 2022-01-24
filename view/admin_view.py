@@ -52,6 +52,44 @@ def _config_initialization() -> Admin:
     return admin
 
 
+def _config_write_and_confirmation(admin: Admin) -> None:
+    with open("config.json", "w") as handle:
+        write_config(handle, admin)
+
+    print(
+        "Successfully performed given operation. "
+        + f"Current day: {admin.current_day}\n")
+
+
+def _set_current_day(admin: Admin) -> None:
+    try:
+        year = int(input("Enter current year: "))
+        month = int(input("Enter current month: "))
+        day = int(input("Enter current day: "))
+
+        new_day = date(year, month, day)
+        admin.set_current_day(new_day)
+
+        with open("config.json", "w") as handle:
+            write_config(handle, admin)
+    except Exception as e:
+        print("An error has occurred while setting new day.")
+        print(f"{e.args[0]}\n")
+        return
+
+    _config_write_and_confirmation(admin)
+
+
+def _next_day(admin: Admin) -> None:
+    admin.next_day()
+    _config_write_and_confirmation(admin)
+
+
+def _previous_day(admin: Admin) -> None:
+    admin.previous_day()
+    _config_write_and_confirmation(admin)
+
+
 def admin_view() -> None:
     """
     Start point for the admin mode of the application. Handles user's
@@ -69,16 +107,15 @@ def admin_view() -> None:
 
     exit_selected = False
     while not exit_selected:
-        selected_index = print_operations(["Next day", "Previous day", "Exit"])
+        selected_index = print_operations(
+            ["Next day", "Previous day", "Set current day", "Exit"])
 
-        if selected_index != 2:
-            admin.next_day() if selected_index == 0 else admin.previous_day()
-
-            with open("config.json", "w") as handle:
-                write_config(handle, admin)
-
-            print(
-                "Successfully performed given operation. "
-                + f"Current day: {admin.current_day}")
-        else:
-            exit_selected = True
+        match selected_index:
+            case 0:
+                _next_day(admin)
+            case 1:
+                _previous_day(admin)
+            case 2:
+                _set_current_day(admin)
+            case 3:
+                exit_selected = True

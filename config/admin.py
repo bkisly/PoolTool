@@ -27,6 +27,13 @@ class Admin:
 
         self.current_day -= timedelta(days=1)
 
+    def set_current_day(self, new_day: date) -> None:
+        """
+        Sets the current day for a given value.
+        """
+
+        self.current_day = new_day
+
     @staticmethod
     def to_json(object) -> dict:
         """
