@@ -53,6 +53,11 @@ def _config_initialization() -> Admin:
 
 
 def _config_write_and_confirmation(admin: Admin) -> None:
+    """
+    Writes the config and prints a message about successfully
+    performed operation.
+    """
+
     with open("config.json", "w") as handle:
         write_config(handle, admin)
 
@@ -62,6 +67,10 @@ def _config_write_and_confirmation(admin: Admin) -> None:
 
 
 def _set_current_day(admin: Admin) -> None:
+    """
+    Lets the user set the current day.
+    """
+
     try:
         year = int(input("Enter current year: "))
         month = int(input("Enter current month: "))
@@ -81,11 +90,19 @@ def _set_current_day(admin: Admin) -> None:
 
 
 def _next_day(admin: Admin) -> None:
+    """
+    Sets the current day for a next day.
+    """
+
     admin.next_day()
     _config_write_and_confirmation(admin)
 
 
 def _previous_day(admin: Admin) -> None:
+    """
+    Sets the current day for a previous day.
+    """
+
     admin.previous_day()
     _config_write_and_confirmation(admin)
 
