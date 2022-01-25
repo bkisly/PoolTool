@@ -15,7 +15,7 @@ def _config_initialization() -> Admin:
     returns it. If config file doesn't exist, shows proper message.
     """
 
-    if does_config_exist(".\\"):
+    if does_config_exist(""):
         try:
             with open("config.json") as handle:
                 admin = read_config(handle)

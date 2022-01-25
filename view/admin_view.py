@@ -115,7 +115,7 @@ def admin_view() -> None:
 
     admin = None
 
-    if does_config_exist(".\\"):
+    if does_config_exist(""):
         admin = _config_validation()
     else:
         admin = _config_initialization()

@@ -45,8 +45,8 @@ def does_config_exist(current_directory: str) -> bool:
     Checks if the config.json file exists in the current directory path
     and returns True if exists.
     """
-
-    if current_directory[-1] != "\\" or current_directory[-1] != "/":
-        current_directory += "/"
+    if current_directory != "":
+        if current_directory[-1] != "\\" or current_directory[-1] != "/":
+            current_directory += "/"
 
     return os.path.isfile(current_directory + "config.json")
